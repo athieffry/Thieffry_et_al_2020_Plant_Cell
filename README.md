@@ -1,4 +1,4 @@
-# Thieffry et al., 2020, The Plant_Cell
+# Thieffry et al., 2020, The Plant Cell
 Code for the manuscript:<br>
 <i>"Characterization of Arabidopsis thaliana Promoter Bidirectionality and Antisense RNAs by Inactivation of Nuclear RNA Decay Pathways".</i><br>
 The Plant Cell 2020<br>
