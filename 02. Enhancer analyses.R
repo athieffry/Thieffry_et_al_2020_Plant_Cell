@@ -1,4 +1,4 @@
-#### Enhancer analyses - TSS story (timepoint = 0 only)
+#### Enhancer analyses at timepoint = 0 only
 #### Axel Thieffry - June 2018
 set.seed(42)
 library(tidyverse)
@@ -8,16 +8,15 @@ library(stringr)
 library(reshape2)
 library(TeMPO)
 library(CAGEfightR)
-library(ggplot2)
 library(tidyquant)
 library(ggpubr)
 library(ggridges)
 library(ggalluvial)
 library(RColorBrewer)
 library(BiocParallel)
+register(MulticoreParam(workers=4))
 library(patchwork)
 library(Gviz)
-register(MulticoreParam(workers=4))
 library(TxDb.Athaliana.BioMart.plantsmart28)
 txdb <- TxDb.Athaliana.BioMart.plantsmart28
 seqlevels(txdb) <- seqlevels(myseqinfo)
@@ -32,29 +31,29 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      if(length(idx) != 0) { o <- GR[-idx]}
                                      else {o <- GR}
                                      o}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses')
+setwd('~/masked_path/02 - Enhancers analyses')
 
 
-# 0. GET DATA ####
-# ----------------
-enhancers <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_Enhancers.rds') # 113 enhancers withtout timecourse
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/myseqinfo.rds')
-CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
-dhss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/analysis/new_dhssumits_annotated_plantDHSonly.rds')
+# 0. READ INPUT DATA ####
+# -----------------------
+enhancers <- readRDS('~/masked_path/SE_Enhancers.rds') # 113 enhancers withtout timecourse
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
+CTSSs <- readRDS('~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
+dhss <- readRDS('~/masked_path/new_dhssumits_annotated_plantDHSonly.rds')
 
 # CAGE signal
-sampleNames <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', pattern='_0_R123.minus.tpm.bw', full.names=F) %>% str_remove('_0_R123.minus.tpm.bw')
+sampleNames <- list.files(path='~/masked_path/bw_files_R123', pattern='_0_R123.minus.tpm.bw', full.names=F) %>% str_remove('_0_R123.minus.tpm.bw')
       # locate files on hard drive & create two named BigWigFileList-objects
-      cage_plus <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', pattern='_0_R123.plus', full.names=T) %>% BigWigFileList()
-      cage_minus <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', pattern='_0_R123.minus', full.names=T) %>% BigWigFileList()
+      cage_plus <- list.files(path='~/masked_path/bw_files_R123', pattern='_0_R123.plus', full.names=T) %>% BigWigFileList()
+      cage_minus <- list.files(path='~/masked_path/bw_files_R123', pattern='_0_R123.minus', full.names=T) %>% BigWigFileList()
       names(cage_plus) <- names(cage_minus) <- sampleNames
 
-# ALL Histone marks (as provided by mivanov)
+# ALL Histone marks (as provided by Maxim Ivanov)
       # bigwig files
-      chipseq <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='.bw', full.names=T) %>% BigWigFileList()
-      names(chipseq) <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='.bw') %>% str_remove('.bw')
+      chipseq <- list.files('~/masked_path/bigwigs', pattern='.bw', full.names=T) %>% BigWigFileList()
+      names(chipseq) <- list.files('~/masked_path/bigwigs', pattern='.bw') %>% str_remove('.bw')
       # bigwig normalization factors (to RPM)
-      chipseq_rpm_factor <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/total_bedgraph_reads.txt', h=T, sep='\t') %>%
+      chipseq_rpm_factor <- read.table('~/masked_path/total_bedgraph_reads.txt', h=T, sep='\t') %>%
         as_tibble() %>%
         mutate('Sample'=str_remove(Sample, '.bedgraph'), 
                'Author'=str_split(Sample, '_', simplify=T)[,1],
@@ -62,20 +61,19 @@ sampleNames <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_fil
                 'RPM_factor'=total_reads_in_bedgraph / 1000000)
 
 # DNaseI & MNase PlantDHS.org
-dmnase <- list('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/DNase/plantdhs.org_Ath.leaf.DNase.bw',
-               '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/Nucleosome/plantdhs.org_Ath_nucleosomes_leaf_NPS.bw') %>% BigWigFileList()
+dmnase <- list('~/masked_path/plantdhs.org_Ath.leaf.DNase.bw',
+               '~/masked_path/plantdhs.org_Ath_nucleosomes_leaf_NPS.bw') %>% BigWigFileList()
 names(dmnase) <- c('DNaseI', 'MNaseI')
 
-# GRO-seq Nature Plants 2018 (Jacobsen)
 # GRO-seq PNAS 2016 (Hetzel)
-gro_p <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis', pattern='GRO.*.plus.bw', full.name=T) %>% BigWigFileList()
-gro_m <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis', pattern='GRO.*.minus.bw', full.name=T) %>% BigWigFileList()
-names(gro_p) <- names(gro_m) <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis', pattern='GRO.*.plus.bw', full.name=F) %>% str_remove('_TPM99pc.plus.bw')
+gro_p <- list.files(path='~/masked_path/03 - TSS analysis', pattern='GRO.*.plus.bw', full.name=T) %>% BigWigFileList()
+gro_m <- list.files(path='~/masked_path/03 - TSS analysis', pattern='GRO.*.minus.bw', full.name=T) %>% BigWigFileList()
+names(gro_p) <- names(gro_m) <- list.files(path='~/masked_path/03 - TSS analysis', pattern='GRO.*.plus.bw', full.name=F) %>% str_remove('_TPM99pc.plus.bw')
 
 # RNA-Seq BIGWIG FILES
-rnaseq_forward <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Forward', full.names=T))
-rnaseq_reverse <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Reverse', full.names=T))
-rnaseq_names <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
+rnaseq_forward <- BigWigFileList(list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Forward', full.names=T))
+rnaseq_reverse <- BigWigFileList(list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Reverse', full.names=T))
+rnaseq_names <- list.files(path='~/masked_path/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
 names(rnaseq_forward) <- names(rnaseq_reverse) <- rnaseq_names
 
 
@@ -89,14 +87,14 @@ txType_labeller <- c(`intron` = paste0('intronic (N=', sum(enhancers_df$txType_T
                      `intergenic` = paste0('intergenic (N=', sum(enhancers_df$txType_TAIR10=='intergenic'),')'))
 
 ggplot(enhancers_df, aes(x=balance, y=score, col=bidirectionality)) +
-  geom_point() +
-  facet_grid(txType_TAIR10~., labeller=as_labeller(txType_labeller)) +
-  scale_y_log10() +
-  scale_color_continuous(name='Bidirectional\nsupport') +
-  cowplot::theme_cowplot() + theme(aspect.ratio=1) +
-  labs(title='Enhancer expression and bidirectionality',
-       subtitle=paste0('N=', nrow(enhancers_df)),
-       x='Transcriptional balance (Bhattacharyya coefficient)', y='Pooled CAGE Expression (TPM)')
+       geom_point() +
+       facet_grid(txType_TAIR10~., labeller=as_labeller(txType_labeller)) +
+       scale_y_log10() +
+       scale_color_continuous(name='Bidirectional\nsupport') +
+       cowplot::theme_cowplot() + theme(aspect.ratio=1) +
+       labs(title='Enhancer expression and bidirectionality',
+            subtitle=paste0('N=', nrow(enhancers_df)),
+            x='Transcriptional balance (Bhattacharyya coefficient)', y='Pooled CAGE Expression (TPM)')
 
 
 ### 1b. expression density ridges for all enhancers by sample
@@ -298,7 +296,6 @@ rnaseq_at_enh %>%
         mutate('sense_RPM'=sense/RPM_factor)
       
       # plot
-      #gg_hist <- 
         histone_at_enh %>%
         subset(author %!in% c('Bewick2016', 'Inagaki2017', 'Luo2013', 'Zhu2015')) %>%
         mutate('type'=ifelse(mark == 'PolII', 'PolII', 'Histones marks')) %>%
@@ -336,16 +333,14 @@ gg_dnase <- dnase_at_enh %>%
          geom_line(lwd=1) +
          geom_vline(xintercept=0, lty=2) +
          cowplot::theme_cowplot() + theme(aspect.ratio=1) +
-         labs(x=paste0('Enhancer midpoints (N=', length(enh_midpoint),')'),
-              y='Normalized signal')
+         labs(x=paste0('Enhancer midpoints (N=', length(enh_midpoint),')'), y='Normalized signal')
 
 gg_mnase <- mnase_at_enh %>%
   ggplot(aes(x=pos0, y=sense)) +
   geom_line(lwd=1) +
   geom_vline(xintercept=0, lty=2) +
   cowplot::theme_cowplot() + theme(aspect.ratio=1) +
-  labs(x=paste0('Enhancer midpoints (N=', length(enh_midpoint),')'),
-       y='Normalized signal')
+  labs(x=paste0('Enhancer midpoints (N=', length(enh_midpoint),')'), y='Normalized signal')
 
 gg_dnase + gg_mnase + plot_layout(ncol=1, nrow=2)
 
@@ -369,10 +364,6 @@ gg_gro
 
 # 7e. plot all
 gg_cage + gg_gro / (gg_dnase + gg_mnase + gg_hist) + plot_layout(nrow=2)
-
-
-
-
 
 
 
@@ -421,3 +412,5 @@ gg_intron <- ggplot(introns, aes(x=width)) +
               x='Length (bp)')
 
 gg_dist + gg_intron + plot_layout(nrow=2)
+
+# EOF #
