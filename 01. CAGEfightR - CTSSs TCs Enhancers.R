@@ -2,12 +2,12 @@
 #### Axel Thieffry - revised May 2018
 set.seed(42)
 library(tidyverse)
+library(tidylog)
 library(magrittr)
 library(stringr)
 library(reshape2)
 library(CAGEfightR)
 library(TeMPO)
-library(ggplot2)
 library(ggpubr)
 library(ggridges)
 library(ggalluvial)
@@ -26,36 +26,41 @@ options(scipen=10) # disable scientific notation
 '%!in%' <- function(x,y)!('%in%'(x,y))
 'select' <- dplyr::select
 'rename' <- dplyr::rename
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/01 - CAGEfightR - CTSSs TCs Enhancers')
+
+setwd('masked_path')
 
 # 1. PREPARATION ####
 # -------------------
-### get seqinfo from BSgenome
-if(FALSE) {
-           genome <- BSgenome.Athaliana.TAIR.TAIR9
+# 1a. get seqinfo from BSgenome
+if(FALSE) {genome <- BSgenome.Athaliana.TAIR.TAIR9
            myseqinfo <- seqinfo(genome)
            genome(myseqinfo) <- rep('TAIR10', 7)
-           saveRDS(myseqinfo, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')}
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
-### get sample names
-sampleNames <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_raw_chrWchr/', pattern='_0_.*.plus.chrWchr.bw', full.names=F) %>% str_replace('.raw.plus.chrWchr.bw', '')
-### make design and make wt and t=0 as references
-if(FALSE) {
-           colData <- data.frame(row.names=sampleNames,
+           saveRDS(myseqinfo, file='~/masked_path/myseqinfo.rds')}
+
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
+
+# 1b. get sample names
+sampleNames <- list.files(path='~/masked_path/bw_files_raw_chrWchr/', pattern='_0_.*.plus.chrWchr.bw', full.names=F) %>%
+               str_replace('.raw.plus.chrWchr.bw', '')
+
+# 1c. make design, and relevel 'wt' and timepoint '0' as references
+if(FALSE) {colData <- data.frame(row.names=sampleNames,
                                  'Name'=sampleNames,
                                  'genotype'=c(rep('hen2', 3), rep('rrp4', 3), rep('wt', 3)))
            colData$genotype %<>% relevel(ref='wt')
-           saveRDS(colData, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/colData_TSSstory.rds')}
-colData <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/colData_TSSstory.rds')
+           saveRDS(colData, file='~/masked_path/colData_TSSstory.rds')
+           }
+
+colData <- readRDS('~/masked_path/colData_TSSstory.rds')
 
 
 # 2. CTSS-LEVEL ANALYSIS ####
 # ---------------------------
 if(FALSE){
-### 2a. Create CTSS object
+# 2a. Create CTSS object
     # locate files on hard drive
-    bw_plus   <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_raw_chrWchr', pattern='_0_.*.plus.chrWchr.bw', full.names=T)
-    bw_minus  <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_raw_chrWchr', pattern='_0_.*.minus.chrWchr.bw', full.names=T)
+    bw_plus   <- list.files(path='~/masked_path/bw_files_raw_chrWchr', pattern='_0_.*.plus.chrWchr.bw', full.names=T)
+    bw_minus  <- list.files(path='~/masked_path/bw_files_raw_chrWchr', pattern='_0_.*.minus.chrWchr.bw', full.names=T)
     # create two named BigWigFileList-objects
     bw_plus %<>% BigWigFileList()
     bw_minus %<>% BigWigFileList()
@@ -63,8 +68,7 @@ if(FALSE){
     # quantify CTSS accross samples
     CTSSs <- quantifyCTSSs(plusStrand=bw_plus, minusStrand=bw_minus, design=colData, genome=myseqinfo, tileWidth=30000000L)
 
-
-### 2b. remove noise and normalize in TPM
+# 2b. remove noise and normalize in TPM
     # calculate support based on readcount
     CTSSs <- calcSupport(CTSSs, inputAssay='counts', outputColumn='support', unexpressed=0)
     # plot CTSS support
@@ -81,7 +85,7 @@ if(FALSE){
     CTSSs <- subset(CTSSs, support >= 3)
     # normalize to TPM: add supported_TPM assay as well as a 'totalTags' column to colData
     CTSSs <- calcTPM(CTSSs, inputAssay='counts', outputAssay='TPM', outputColumn='totalTags')
-    # check total TPM is 1 million
+    # sanitycheck: total TPM is 1 million
     assay(CTSSs, 'TPM') %>% colSums() %>% as.data.frame()
     # plot totalTags (raw and after filtering for support) per library
     colData(CTSSs) %>%
@@ -94,12 +98,13 @@ if(FALSE){
     # calculate pooled TPM: as score in the rowRanges
     CTSSs <- calcPooled(CTSSs, inputAssay='TPM', outputColumn='score')
     # save CTSSs
-    saveRDS(CTSSs, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
+    saveRDS(CTSSs, file='~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
     }
-CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
+
+CTSSs <- readRDS('~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
 
 
-### 2c. Unidirectional tag clustering (TSSs)
+# 2c. Unidirectional tag clustering (TSSs)
     # TC clustering
     TCs <- clusterUnidirectionally(CTSSs, pooledCutoff=0, mergeDist=20)
     # quantification of TSSs (counts)
@@ -129,9 +134,7 @@ CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RD
       
     pca_importance <- summary(pca)$importance[2,] * 100
     
-    blue='#71A0C5'
-    orange='orange'
-    red='#BF717F'
+    blue='#71A0C5'; orange='orange'; red='#BF717F'
     
     pca$x %>%
       as.data.frame() %>%
@@ -144,8 +147,7 @@ CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RD
                   title='PCA of CAGE TCs', subtitle='TPM scaled and centered') +
              scale_color_manual(values=c(blue, orange, red)) + cowplot::panel_border(colour='black', size=1)
 
-
-### 2d. Bidirectional tag clustering (enhancers)
+# 2d. Bidirectional tag clustering (aka enhancer candidates)
     enhancers <- clusterBidirectionally(CTSSs, window=201)
     # calculate bidirectionality support (must have counts > 0 in both arms)
     enhancers <- calcBidirectionality(enhancers, samples=CTSSs)
@@ -158,11 +160,11 @@ CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RD
                   title='Enhancer bidirectionality support',
                   subtitle='Sliding window length: 400bp\nPooled bidirectionality threshold: 0.99\nBidirectionality support: count > 0 in both arms') +
              theme(aspect.ratio=1)
-    # keep only enhancers that are truly bidirectional in at least in 3 samples
+    # keep only enhancers that are bidirectional in at least in 3 samples
     enhancers <- subset(enhancers, bidirectionality > 2)
     # quantification of enhancers (counts)
     enhancers <- quantifyClusters(CTSSs, clusters=enhancers, inputAssay='counts')
-    # calculate TPM (but don't filter on TPM level)
+    # calculate TPM (but don't filter on it)
     enhancers <- calcTPM(enhancers, totalTags='totalTags', inputAssay='counts', outputAssay='TPM')
     # calculate pooled TPM as a new column, as well as TPM for each genotype
     enhancers <- calcPooled(enhancers, inputAssay='TPM', outputColumn='TPMpooled')
@@ -175,15 +177,15 @@ CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RD
 # 3. ANNOTATION ####
 # ------------------
 if(FALSE){
-### 3a. make annotation from ARAPORT11 GFF3
-    araport_txdb <- makeTxDbFromGFF(file='~/Dropbox/Axel_Arabidopsis_Flagellin/ARAPORT11/Araport11_GFF3_genes_transposons.201606.gff3', format='gff3', chrominfo=myseqinfo)
+# 3a. make annotation from ARAPORT11 GFF3
+    araport_txdb <- makeTxDbFromGFF(file='~/masked_path/Araport11_GFF3_genes_transposons.201606.gff3', format='gff3', chrominfo=myseqinfo)
 
-### 3b. Building personal hierarchy of TxTypes (first is higher)
+# 3b. Building personal hierarchy of TxTypes (first to appear is higher priority)
 # NB: using a GRangesList for the txModels will make assignTxType to not use any argument/option, so everything has to be build here
-    # make transcript antisense for tair10 and araport11
+    # make transcript antisense for TAIR10 and ARAPORT11
     Antis_tair <- transcripts(txdb) %>% invertStrand()
     Antis_araport <- transcripts(araport_txdb) %>% invertStrand()
-    # make reverse strand (aka PROMPTs, antisense and up to 400bp upstream of TSS) for tair10 and araport11
+    # make reverse strand (aka PROMPT regions, antisense to gene and up to 400bp upstream of TSS) for TAIR10 and ARAPORT11
     Reverse_tair <- suppressWarnings( promoters(txdb, upstream=400, downstream=0) %>% trim() %>% invertStrand() )
     Reverse_araport <- suppressWarnings( promoters(araport_txdb, upstream=400, downstream=0) %>% trim() %>% invertStrand() )
     # build custom hierarchy for TAIR10
@@ -211,12 +213,14 @@ if(FALSE){
     seqlevelsStyle(custom_hierarchy_tair10) <- seqlevelsStyle(custom_hierarchy_araport) <- seqlevelsStyle(myseqinfo)
     seqinfo(custom_hierarchy_tair10) <- seqinfo(custom_hierarchy_araport) <- myseqinfo
     seqinfo(custom_hierarchy_tair10) ; seqinfo(custom_hierarchy_araport)
+           
     # save
-    saveRDS(custom_hierarchy_tair10, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_TAIR10.rds')
-    saveRDS(custom_hierarchy_araport, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_ARAPORT11.rds')
+    saveRDS(custom_hierarchy_tair10, file='~/masked_path/custom_annotation_hierarchy_TAIR10.rds')
+    saveRDS(custom_hierarchy_araport, file='~/masked_path/custom_annotation_hierarchy_ARAPORT11.rds')
 }
-custom_hierarchy_tair10 <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_TAIR10.rds')
-custom_hierarchy_araport <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_ARAPORT11.rds')
+                     
+custom_hierarchy_tair10 <- readRDS('~/masked_path/custom_annotation_hierarchy_TAIR10.rds')
+custom_hierarchy_araport <- readRDS('~/masked_path/custom_annotation_hierarchy_ARAPORT11.rds')
 
 # build antisense txType custom hierarchy
 if(FALSE){
@@ -232,11 +236,12 @@ if(FALSE){
     custom_annotation_hierarchy_extended_TAIR10$antisense_reverse <- NULL # because reverse already captures them
     custom_annotation_hierarchy_extended_TAIR10$antisense_proximal <- NULL # because reverse already captures them
     data.frame('antisense_annot'=names(custom_annotation_hierarchy_extended_TAIR10))
-    saveRDS(custom_annotation_hierarchy_extended_TAIR10, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_TAIR10_extended_antisense.rds')
+    saveRDS(custom_annotation_hierarchy_extended_TAIR10, '~/masked_path/custom_annotation_hierarchy_TAIR10_extended_antisense.rds')
 }
-custom_hierarchy_tair10_extended_antisense <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_TAIR10_extended_antisense.rds')
+                     
+custom_hierarchy_tair10_extended_antisense <- readRDS('~/masked_path/custom_annotation_hierarchy_TAIR10_extended_antisense.rds')
 
-### 3d. annotate TCs
+# 3d. annotate TCs
     # sense TCs up to 400bp upstream of the TX start will be assigned to that TX
     seqlevelsStyle(txdb) <- seqlevelsStyle(myseqinfo)
     TCs <- assignTxID(TCs, txModels=txdb, outputColumn='txID', swap='thick', upstream=400, downstream=0)
@@ -300,7 +305,7 @@ custom_hierarchy_tair10_extended_antisense <- readRDS('~/Dropbox/Axel_Arabidopsi
     
     ggarrange(gg_annotation, gg_expression, ncol=2, nrow=1)
     
-    # TAIR10 -vs- ARAPORT11: what becomes what? (alluvial)
+    # TAIR10 -vs- ARAPORT11: what becomes what? (alluvial plot)
     alluvial_annotation <- TCs %>%
             rowData() %>%
             as.data.frame() %$%
@@ -322,7 +327,7 @@ custom_hierarchy_tair10_extended_antisense <- readRDS('~/Dropbox/Axel_Arabidopsi
              labs(x='', y='TSS annotation categories', title='Differences of annotation: TAIR10 -vs- ARAPORT11',
                   subtitle='Only couples with > 100 differences are shown')
     
-    # table version
+    # table version of alluvial plot
     TCs %>%
       rowData() %>%
       as.data.frame() %$%
@@ -331,7 +336,7 @@ custom_hierarchy_tair10_extended_antisense <- readRDS('~/Dropbox/Axel_Arabidopsi
       rownames_to_column('TAIR10') %>%
       gt() %>% tab_header(title='TAIR10 to ARAPORT11', subtitle='TSS annotation')
     
-    # TAIR10 antisense : what becomes what? (alluvial)
+    # TAIR10 antisense : what becomes what? (alluvial plot)
     alluvial_antisense <- rowData(TCs) %>%
                           as.data.frame() %$%
                           table(txType_TAIR10, txType_TAIR10extended) %>%
@@ -354,7 +359,7 @@ custom_hierarchy_tair10_extended_antisense <- readRDS('~/Dropbox/Axel_Arabidopsi
              labs(x='', y='TSS annotation categories', title='CAGE TSSs: extended TAIR10 antisense annotation')
 
 
-### 3d. annotate Enhancers
+# 3d. annotate bidirectional clusters (aka enhancer candidates)
     enhancers <- assignTxType(enhancers, txModels=txdb, outputColumn='txType_TAIR10')
     # plot enhancer annotation
     rowRanges(enhancers) %>%
@@ -366,15 +371,15 @@ custom_hierarchy_tair10_extended_antisense <- readRDS('~/Dropbox/Axel_Arabidopsi
     # only keep enhancers on canonical chromosomes
     seqlevels(enhancers, pruning.mode='coarse') <- paste0('Chr', 1:5) # 113
     # save pooled enhancers as bedfile and Rdata
-    saveRDS(enhancers, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_Enhancers.rds')
-    export.bed(rowRanges(enhancers), '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/01 - CAGEfightR - CTSSs TCs Enhancers/Enhancers_CAGEfightR.bed')
-    # export enhancers for supplementary dataset
+    saveRDS(enhancers, file='~/masked_path/SE_Enhancers.rds')
+    export.bed(rowRanges(enhancers), '~/masked_path/Enhancers_CAGEfightR.bed')
+    # export enhancers for supplemental dataset
     rowRanges(enhancers) %>%
       as.data.frame() %>%
       rownames_to_column('TC_id') %>%
       select(-thick.end, -thick.width, -thick.names, -TPMpooled:-TPM_rrp4) %>%
       set_colnames(c('TC_id', 'chr', 'start', 'end', 'width', 'strand', 'pooled_TPM', 'midpoint', 'balance', 'bidirectionality', 'TAIR10_annotation')) %>%
-      WriteXLS::WriteXLS('~/Dropbox/Flg22_CAGE/Exosome_TSS paper/Figures and layout/Supplementary Data/bidirectional_CAGE_TCs.xlsx', row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
+      WriteXLS::WriteXLS('~/masked_path/bidirectional_CAGE_TCs.xlsx', row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
 
 
 # 4. TSS SHAPE STATISTICS ####
@@ -393,9 +398,9 @@ dev.off()
 
 
 
-# 5. ANNOTATE AT GENE-LEVEL ####
-# ------------------------------
-### 5a. Gene ID with TAIR10
+# 5. ANNOTATION AT GENE-LEVEL ####
+# --------------------------------
+# 5a. Gene ID with TAIR10
   # normal sense genes
   TCs <- assignGeneID(TCs, geneModels=txdb, outputColumn='geneID', upstream=400, downstream=0, swap='thick')
   # antisense gene (must extend to the PROMPT region before inverting strand!)
@@ -403,21 +408,21 @@ dev.off()
   promoters_genes <- promoters(extended_genes, upstream=400, downstream=0) %>% trim()
   start(extended_genes) <- ifelse(strand(extended_genes)=='+', start(promoters_genes) , start(extended_genes))
   end(extended_genes) <- ifelse(strand(extended_genes)=='-', end(promoters_genes), end(extended_genes))
-  # IGV sanity check
+  # IGV export for sanity check
   export.bed(invertStrand(extended_genes), 'extended_genes_antisense.bed')
   TCs <- assignGeneID(TCs, geneModels=invertStrand(extended_genes), outputColumn='geneID_anti', upstream=0, downstream=0, swap='thick')
-  # get symbols
+  # get gene symbols
   symbols <- mapIds(odb, keys=rowRanges(TCs)$geneID, keytype='TAIR', column='SYMBOL')
   symbols_anti <- mapIds(odb, keys=rowRanges(TCs)$geneID_anti, keytype='TAIR', column='SYMBOL')
   rowRanges(TCs)$symbol <- as.character(symbols)
   rowRanges(TCs)$symbol_anti <- as.character(symbols_anti)
   # save pooled TCs as bedfile and Rdata
-  saveRDS(TCs, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib_TSSstory.rds')
-  export.bed(rowRanges(TCs), '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/01 - CAGEfightR - CTSSs TCs Enhancers/TCs_TPM1_min3lib.bed')
+  saveRDS(TCs, file='~/masked_path/SE_TCs_TPM1_min3lib_TSSstory.rds')
+  export.bed(rowRanges(TCs), '~/masked_path/TCs_TPM1_min3lib.bed')
 
-### 5b. Quantify expression at Gene-level
+# 5b. Quantify expression at Gene-level
   genelevel <- quantifyGenes(TCs, genes='geneID', inputAssay='counts')
-  saveRDS(genelevel, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_genelevel_TSSstory.rds')
+  saveRDS(genelevel, file='~/masked_path/SE_genelevel_TSSstory.rds')
 
 # export TCS for supplementary dataset
 TCs_export <- rowRanges(TCs) %>%
@@ -426,15 +431,15 @@ TCs_export <- rowRanges(TCs) %>%
   set_colnames(c('TC_id', 'chr', 'start', 'end', 'width', 'strand', 'pooled_TPM', 'TC_peak', 'TC_peak2', 'thick.width', 'thick.names', 'TPM_support', 'txID_TAIR10', 'txType_TAIR10', 'txType_ARAPORT11', 'txType_TAIR10_anti', 'IQR', 'Entropy', 'geneID_TAIR10', 'geneID_TAIR10_anti', 'gene_TAIR10_symbol', 'gene_TAIR10_symbol_anti')) %>%
   select(-TC_peak2, -thick.width, -thick.names, -Entropy, -gene_TAIR10_symbol, -gene_TAIR10_symbol_anti)
 
-  WriteXLS::WriteXLS(x=TCs_export, ExcelFileName='~/Dropbox/Flg22_CAGE/Exosome_TSS paper/Figures and layout/Supplementary Data/CAGE_TCs.xlsx', row.names=F, col.names=T)
+  WriteXLS::WriteXLS(x=TCs_export, ExcelFileName='~/masked_path/CAGE_TCs.xlsx', row.names=F, col.names=T)
 
-# export TPM expression matrix for supplementary dataset
+# export TPM expression matrix for supplemental dataset
 TCs_tpm_export <- assay(TCs, 'TPM') %>%
   as.data.frame() %>%
   rownames_to_column('TC_id') %>%
   set_colnames(str_remove(colnames(.), '_0'))
   
-  write.table(TCs_tpm_export, '~/Dropbox/Flg22_CAGE/Exosome_TSS paper/Figures and layout/Supplementary Data/CAGE_TC_expression_matrix_TPM.txt', append=F, quote=F, dec='.', row.names=F, col.names=T, sep='\t')
+  write.table(TCs_tpm_export, '~/masked_path/CAGE_TC_expression_matrix_TPM.txt', append=F, quote=F, dec='.', row.names=F, col.names=T, sep='\t')
 
 
 
@@ -442,7 +447,6 @@ TCs_tpm_export <- assay(TCs, 'TPM') %>%
 # -------------------------------------------------------------------------
 # remove TSSs not belonging to any gene
 intragenicTSSs <- subset(TCs, !is.na(geneID))
-rowRanges(TCs)
 # calculate composition: the number of samples expression TSSs above 10% of the total gene expression
 intragenicTSSs <- calcComposition(intragenicTSSs, inputAssay='counts', outputColumn='composition', unexpressed=0.1, genes='geneID')
 # plot
@@ -454,7 +458,7 @@ as.data.frame(rowRanges(intragenicTSSs)) %>%
 # subset
 intragenicTSSs <- subset(intragenicTSSs, composition >= 3)
 # save
-saveRDS(intragenicTSSs, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_intragenicTSSs_for_DTU_TSSstory.rds')
+saveRDS(intragenicTSSs, file='~/masked_path/SE_intragenicTSSs_for_DTU_TSSstory.rds')
 
 ### EOF ###
 
