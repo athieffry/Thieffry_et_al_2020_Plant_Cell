@@ -1,18 +1,17 @@
-# Analysis of mapping stats
+# Analysis of stats from mapping CAGE reads to Arabidopsis thaliana reference genome
 # Axel Thieffry - February 2019
 library(tidyverse)
+library(tidylog)
 library(magrittr)
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - mapping stats/')
-
+setwd('masked_path')
 
 stats <- read.table('mapping.stats', h=T) %>% as_tibble()
 stats %<>% separate(sample, c('genotype', 'timepoint', 'replicate'), sep='_')
 
 stats_zero <- subset(stats, timepoint==0)
 
-# average unique mappers per library (in millions reads)
+# average unique mappers per library (in millions reads and percentage)
 mean(stats_zero$unique) / 1000000
-# same number in percent
 mean(stats_zero$unique_pc)
   
