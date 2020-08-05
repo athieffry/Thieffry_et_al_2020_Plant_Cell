@@ -28,22 +28,22 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      else {o <- GR}
                                      o}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis')
+setwd('~/masked_path/03 - TSS analysis')
 
 
 # 1. GET ALL INPUT DATA ####
 # --------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
     # remove non-canonical chromosomes
     seqlevels(myseqinfo) <- setdiff(seqlevels(myseqinfo), c('ChrM', 'ChrC'))
 
 # TSS dataset (comparable ones after +/-100bp extension, quantification with CAGE wt T=0 and >= 1TPM in >= 2 libs)
-cage_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
-tair_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
-araport_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
-peat_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
-nanopare_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
+cage_tss <- readRDS('~/masked_path/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
+tair_tss <- readRDS('~/masked_path/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
+araport_tss <- readRDS('~/masked_path/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
+peat_tss <- readRDS('~/masked_path/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
+nanopare_tss <- readRDS('~/masked_path/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
 
 
 
@@ -149,14 +149,14 @@ ggseqlogo(data=mylist, ncol=1) +
 
 # Special one-shot seqlogo for the 96 exosome-sensitive PROMPT TCs.
 # (a bit of back-and-forth because some SE have DE data, some have swapRanges working, whatever.)
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
 
 prompt_TCs <- rowRanges(TCs) %>%
               subset(txType_TAIR10 == 'reverse') %>%
               subset(genotypehen2 == 1 | genotyperrp4 == 1) %>%
               names()
 
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib_TSSstory.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib_TSSstory.rds')
 
 prompt_TCs <- rowRanges(TCs) %>%
               subset(names %in% prompt_TCs) %>%
@@ -179,8 +179,7 @@ ggseqlogo(data=list('PROMPT TCs (96)'=prompt_pfm$mat), ncol=1) +
   scale_x_continuous(breaks=seq(0, upstream + downstream, 10), labels=c(plusone, "+10")) +
   theme(aspect.ratio=.4) +
   labs(x='Distance to TC peaks (bp)')
-upstream
-downstream
+
 
 # 4. DINUCLEOTIDE AND TRINUCLEOTIDE FREQUENCIES ####
 # --------------------------------------------------
@@ -316,8 +315,8 @@ peat_seq <- peat_tss %>%
     table(rowRanges(cage_tss)$TPMquantile, useNA='always') # no NA: all ok
 
 # get all PFM POL matrices from JASPAR 2018
-matrices <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis/JASPAR2018_POL_matrices/', full.names=T)
-matrices_names <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis/JASPAR2018_POL_matrices/') %>% str_replace('.jaspar', '')
+matrices <- list.files('~/masked_path/JASPAR2018_POL_matrices/', full.names=T)
+matrices_names <- list.files('~/masked_path/JASPAR2018_POL_matrices/') %>% str_replace('.jaspar', '')
 matrices <- lapply(matrices, readJASPARMatrix)
 names(matrices) <- matrices_names
 # make PWM
@@ -427,9 +426,6 @@ nanopare_seq <- nanopare_tss %>%
   rowRanges() %>%
   promoters(upstream=upstream, downstream=downstream) %>%
   getSeq(genome, .)
-
-# bla <- motifScanHits(regionsSeq=cage_seq, motifPWM=as.matrix(matrices$TATA), minScore='64%')
-# length(unique(bla$sequence)) / length(cage_seq) * 100
 
 plotMotifOccurrenceAverage(regionsSeq=cage_seq , motifPWM=as.matrix(matrices$TATA) , minScore='65%', flankUp=200, flankDown=200,
                           smoothingWindow=3, color=c('darkgreen'), cex.axis=0.9)
