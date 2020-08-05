@@ -29,7 +29,7 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      if(length(idx) != 0) { o <- GR[-idx]}
                                      else {o <- GR}
                                      o}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis')
+setwd('~/masked_path/03 - TSS analysis')
 
 
 
@@ -37,14 +37,15 @@ setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis'
 # 1. GET INPUT DATA AND FIX SEQINFO ####
 # --------------------------------------
 # myseqinfo (remove non-canonical chromosomes)
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
     seqlevels(myseqinfo) <- setdiff(seqlevels(myseqinfo), c('ChrM', 'ChrC'))
+
 # TSS dataset (comparable ones after +/-100bp extension, quantification with CAGE wt T=0 and >= 1TPM in >= 2 libs)
-cage_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
-tair_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
-araport_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
-peat_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
-nanopare_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
+cage_tss <- readRDS('~/masked_path/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
+tair_tss <- readRDS('~/masked_path/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
+araport_tss <- readRDS('~/masked_path/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
+peat_tss <- readRDS('~/masked_path/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
+nanopare_tss <- readRDS('~/masked_path/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
 
 
 
@@ -53,23 +54,27 @@ nanopare_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/
 # -------------------------------------------------
 # ALL Histone marks (as provided by mivanov)
 # bigwig files
-chipseq <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='.bw', full.names=T) %>% BigWigFileList()
-names(chipseq) <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='.bw') %>% str_remove('.bw')
+chipseq <- list.files('~/masked_path/bigwigs', pattern='.bw', full.names=T) %>% BigWigFileList()
+names(chipseq) <- list.files('~/masked_path/bigwigs', pattern='.bw') %>% str_remove('.bw')
 # bigwig normalization factors (to RPM)
-chipseq_rpm_factor <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/total_bedgraph_reads.txt', h=T, sep='\t') %>%
+chipseq_rpm_factor <- read.table('~/masked_path/total_bedgraph_reads.txt', h=T, sep='\t') %>%
   as_tibble() %>%
   mutate('Sample'=str_remove(Sample, '.bedgraph'), 
          'Author'=str_split(Sample, '_', simplify=T)[,1],
          'Histone_mark'=str_split(Sample, '_', simplify=T)[,2],
          'RPM_factor'=total_reads_in_bedgraph / 1000000)
+
 # MNaseI PlantDHS.org
-mnase <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_mnase_leaf_TPM99pc.bw')
+mnase <- BigWigFile('~/masked_path/plantDHS_mnase_leaf_TPM99pc.bw')
+
 # DNaseI PlantDHS.org
-dnase <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_dnase_leaf_TPM99pc.bw')
+dnase <- BigWigFile('~/masked_path/plantDHS_dnase_leaf_TPM99pc.bw')
+
 # GRO-seq
-gro_p <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*plus', full.names=T))
-gro_m <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*minus', full.names=T))
-names(gro_p) <- names(gro_m) <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*plus') %>% str_remove('_TPM99pc.plus.bw')
+gro_p <- BigWigFileList(list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*plus', full.names=T))
+gro_m <- BigWigFileList(list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*minus', full.names=T))
+names(gro_p) <- names(gro_m) <- list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*plus') %>% str_remove('_TPM99pc.plus.bw')
+
 # make TSS GRangesList
 tss_list_plus <-list("CAGE"=rowRanges(cage_tss) %>% subset(strand=='+'),
                      "nanoPARE"=rowRanges(nanopare_tss) %>% subset(strand=='+'),
@@ -166,7 +171,7 @@ quantifyAcrossSample <- function(features, scoring_SE, inputAssay='TPM', sample)
   sum(extractList(rowRanges(newSE)$score, hits))
 }
 # quantify TSSs across PEAT extended regions
-CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
+CTSSs <- readRDS('~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
 CTSSs_wt <- subset(CTSSs, select=genotype=='wt')
 sampleNames <- CTSSs_wt$Name %>% as.character()
 
