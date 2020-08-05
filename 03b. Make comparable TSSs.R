@@ -21,29 +21,33 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      if(length(idx) != 0) { o <- GR[-idx]}
                                      else {o <- GR}
                                      o}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis')
+setwd('~/masked_path/03 - TSS analysis')
 
 
 # 1. GET INPUT DATA AND FIX SEQINFO ####
 # --------------------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
     # remove non-canonical chromosomes
     seqlevels(myseqinfo) <- setdiff(seqlevels(myseqinfo), c('ChrM', 'ChrC'))
+
 # CAGE TSSs
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_ctrl.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_ctrl.rds')
     # remove non-canonical chromosomes
     seqlevels(TCs, pruning.mode='coarse') <- seqlevels(myseqinfo)
+
 # CAGE CTSSs
-CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
+CTSSs <- readRDS('~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
 CTSSs_wt <- subset(CTSSs, select=genotype=='wt')
+
 # TAIR10 TSSs
 txdb_tair <- TxDb.Athaliana.BioMart.plantsmart28
     # remove non-canonical chromosomes
     seqlevelsStyle(txdb_tair) <- seqlevelsStyle(myseqinfo)[1]
     seqlevels(txdb_tair, pruning.mode='coarse') <- seqlevels(myseqinfo)
+
 # ARAPORT11 TSSs
-araport <- import.gff3('~/Dropbox/Axel_Arabidopsis_Flagellin/ARAPORT11/Araport11_GFF3_genes_transposons.201606.gff3')
+araport <- import.gff3('~/masked_path/Araport11_GFF3_genes_transposons.201606.gff3')
     # fix seqinfo
     seqlevels(araport, pruning.mode='coarse') <- seqlevels(myseqinfo)
     seqinfo(araport) <- myseqinfo
@@ -51,7 +55,7 @@ araport <- import.gff3('~/Dropbox/Axel_Arabidopsis_Flagellin/ARAPORT11/Araport11
     txdb_araport <- suppressWarnings( makeTxDbFromGRanges(araport) )
 
 # PEAT from Morton & al.: as provided by Schon et al.
-peat <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6a. comparison PEAT Morton/NanoPARE data/supplemental_code_S1/data_tables/PEAT_peaks.bed') %>% as_tibble()
+peat <- read.table('~/masked_path/PEAT_peaks.bed') %>% as_tibble()
     # clean
     colnames(peat) <- c('chr', 'start', 'end', 'geneID', 'score', 'strand', 'peak')
     peat$chr %<>% str_remove('Ath_') %>% str_replace('chr', 'Chr')
@@ -64,7 +68,7 @@ peat <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - 
 
 
 # NanoPARE TSSs from Schon et al. (5ng)
-nanopare <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6a. comparison PEAT Morton/NanoPARE data/supplemental_code_S1/data_tables/fb.W.5P.bed') %>% as_tibble()
+nanopare <- read.table('~/masked_path/fb.W.5P.bed') %>% as_tibble()
     # clean
     colnames(nanopare) <- c('chr', 'start', 'end', 'type', 'peak', 'strand', 'geneID', 'bla', 'blu', 'blo')
     nanopare$chr %<>% str_remove('Ath_') %>% str_replace('chr', 'Chr') %>% str_replace('Chrc', 'ChrC') %>% str_replace('Chrm', 'ChrM')
@@ -177,14 +181,8 @@ peat_tss_new <- peat_1bp_tss_TPM_SE[rowRanges(peat_1bp_tss_TPM_SE)$support >= 2]
 nanopare_tss_new <- nanopare_1bp_tss_TPM_SE[rowRanges(nanopare_1bp_tss_TPM_SE)$support >= 2] # 16,309
 
 # save
-saveRDS(cage_tss_new, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
-saveRDS(tair_tss_new, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
-saveRDS(araport_tss_new, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
-saveRDS(peat_tss_new, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
-saveRDS(nanopare_tss_new, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
-
-rowRanges(nanopare_tss_new) %>%
-  subset(strand=='-')
-rowRanges(nanopare_tss_new) %>%
-  subset(strand=='+')
-
+saveRDS(cage_tss_new, '~/masked_path/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
+saveRDS(tair_tss_new, '~/masked_path/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
+saveRDS(araport_tss_new, '~/masked_path/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
+saveRDS(peat_tss_new, '~/masked_path/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
+saveRDS(nanopare_tss_new, '~/masked_path/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
