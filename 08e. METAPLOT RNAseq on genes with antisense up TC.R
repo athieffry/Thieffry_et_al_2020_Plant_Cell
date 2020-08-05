@@ -14,14 +14,14 @@ library(robustbase)
 'rename' <- dplyr::rename
 '%!in%' <- function(x,y)!('%in%'(x,y))
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/08 - metagene plots - RNaseq on genes with any antisense up CAGE TC')
+setwd('~/masked_path/08 - metagene plots - RNaseq on genes with any antisense up CAGE TC')
 
 # CAGE SCALED METAPLOT ON RNASEQ RRP4 ADEGS (FROM DEEPTOOLS) ####
 # ---------------------------------------------------------------
-pp <- read.delim('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/08 - metagene plots - RNaseq on genes with any antisense up CAGE TC/matrix_RNAseq_plus_BED_plus.mat', skip=2)[, -1]
-mm <- read.delim('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/08 - metagene plots - RNaseq on genes with any antisense up CAGE TC/matrix_RNAseq_minus_BED_minus.mat', skip=2)[, -1]
-pm <- read.delim('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/08 - metagene plots - RNaseq on genes with any antisense up CAGE TC/matrix_RNAseq_plus_BED_minus.mat', skip=2)[, -1]
-mp <- read.delim('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/08 - metagene plots - RNaseq on genes with any antisense up CAGE TC/matrix_RNAseq_minus_BED_plus.mat', skip=2)[, -1]
+pp <- read.delim('~/masked_path/matrix_RNAseq_plus_BED_plus.mat', skip=2)[, -1]
+mm <- read.delim('~/masked_path/matrix_RNAseq_minus_BED_minus.mat', skip=2)[, -1]
+pm <- read.delim('~/masked_path/matrix_RNAseq_plus_BED_minus.mat', skip=2)[, -1]
+mp <- read.delim('~/masked_path/matrix_RNAseq_minus_BED_plus.mat', skip=2)[, -1]
 
 (samples <- colnames(pp) %>% str_remove('\\..*') %>% unique())
 
