@@ -15,7 +15,7 @@ library(RColorBrewer)
 library(BiocParallel)
 register(MulticoreParam(workers=4))
 library(TxDb.Athaliana.BioMart.plantsmart28)
-seqlevels(txdb) <- seqlevels(myseqinfo)
+txdb <- TxDb.Athaliana.BioMart.plantsmart28
 library(BSgenome.Athaliana.TAIR.TAIR9)
 genome <- BSgenome.Athaliana.TAIR.TAIR9
 options(scipen=10) # disable scientific notation
@@ -27,15 +27,17 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      else {o <- GR}
                                      o}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis/')
+setwd('~/masked_path/03 - TSS analysis/')
 
 
 # 1. CAGE AROUND ANNOTATION TSSs ####
 # -----------------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
     # remove non-canonical chromosomes
     seqlevels(myseqinfo) <- setdiff(seqlevels(myseqinfo), c('ChrM', 'ChrC'))
+    # relevel txdb
+    seqlevels(txdb) <- seqlevels(myseqinfo)
 
 # TAIR10
 txdb_tair <- TxDb.Athaliana.BioMart.plantsmart28
@@ -44,7 +46,7 @@ txdb_tair <- TxDb.Athaliana.BioMart.plantsmart28
     seqlevels(txdb_tair, pruning.mode='coarse') <- seqlevels(myseqinfo)
 
 # ARAPORT11
-araport <- import.gff3('~/Dropbox/Axel_Arabidopsis_Flagellin/ARAPORT11/Araport11_GFF3_genes_transposons.201606.gff3')
+araport <- import.gff3('~/masked_path/Araport11_GFF3_genes_transposons.201606.gff3')
     # fix seqinfo
     seqlevels(araport, pruning.mode='coarse') <- seqlevels(myseqinfo)
     seqinfo(araport) <- myseqinfo
@@ -59,8 +61,8 @@ araport_tss <- txdb_araport %>% promoters(upstream=0, downstream=1) %>% remove_o
 bla <- GRangesList('TAIR10'=tair_tss, 'ARAPORT11'=araport_tss)
 
 # CAGE wt T=0
-wt_ctrl_p <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123/wt_0_R123.plus.tpm.bw')
-wt_ctrl_m <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123/wt_0_R123.minus.tpm.bw')
+wt_ctrl_p <- BigWigFile('~/masked_path/wt_0_R123.plus.tpm.bw')
+wt_ctrl_m <- BigWigFile('~/masked_path/wt_0_R123.minus.tpm.bw')
 
 # compute coverage around promoters
 footprint <- tidyMetaProfile(sites=bla, forward=wt_ctrl_p, reverse=wt_ctrl_m, upstream=500, downstream=501, trimLower=0.01, trimUpper=0.99)
@@ -74,5 +76,3 @@ footprint %>%
          scale_color_brewer(palette='Set1', direction=-1, name='') +
          scale_fill_brewer(palette='Set1', direction=-1, name='') +
          labs(x='Position relative to TSS (bp)', y='CAGE WT TPM (0.1-0.99%tile)')
-
-
