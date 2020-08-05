@@ -31,7 +31,7 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      else {o <- GR}
                                      o}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis')
+setwd('~/masked_path/03 - TSS analysis')
 
 
 
@@ -39,14 +39,14 @@ setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis'
 # 1. GET INPUT DATA AND FIX SEQINFO ####
 # --------------------------------------
 # myseqinfo (remove non-canonical chromosomes)
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 seqlevels(myseqinfo) <- setdiff(seqlevels(myseqinfo), c('ChrM', 'ChrC'))
 # TSS dataset (comparable ones after +/-100bp extension, quantification with CAGE wt T=0 and >= 1TPM in >= 2 libs)
-cage_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
-tair_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
-araport_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
-peat_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
-nanopare_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
+cage_tss <- readRDS('~/masked_path/SE_CAGE_wt_comparable_TSSs_redone_17June2019.rds')
+tair_tss <- readRDS('~/masked_path/SE_TAIR10_comparable_TSSs_redone_17June2019.rds')
+araport_tss <- readRDS('~/masked_path/SE_ARAPORT11_comparable_TSSs_redone_17June2019.rds')
+peat_tss <- readRDS('~/masked_path/SE_PEAT_comparable_TSSs_redone_17June2019.rds')
+nanopare_tss <- readRDS('~/masked_path/SE_nanoPARE_comparable_TSSs_redone_17June2019.rds')
 
 
 
@@ -54,29 +54,29 @@ nanopare_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/
 # -------------------------------------------------
 if(FALSE){
           # ChIP-Seq PlantDHS.org
-          plantDHS_buds_H3K27ac  <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/ChIP-Seq/plantdhs.org_Ath_buds_H3K27ac.bw')
-          plantDHS_leaf_H3K27ac  <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/ChIP-Seq/plantdhs.org_Ath_leaf_H3K27ac.bw')
-          plantDHS_buds_H3K27me3 <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/ChIP-Seq/plantdhs.org_Ath_buds_H3K27me3.bw')
-          plantDHS_leaf_H3K27me3 <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/ChIP-Seq/plantdhs.org_Ath_leaf_H3K27me3.bw')
-          plantDHS_buds_H3K4me1  <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/ChIP-Seq/plantdhs.org_Ath_buds_H3K4me1.bw')
-          plantDHS_leaf_H3K4me1  <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/ChIP-Seq/plantdhs.org_Ath_leaf_H3K4me1.bw')
+          plantDHS_buds_H3K27ac  <- import.bw('~/masked_path/plantdhs.org_Ath_buds_H3K27ac.bw')
+          plantDHS_leaf_H3K27ac  <- import.bw('~/masked_path/plantdhs.org_Ath_leaf_H3K27ac.bw')
+          plantDHS_buds_H3K27me3 <- import.bw('~/masked_path/plantdhs.org_Ath_buds_H3K27me3.bw')
+          plantDHS_leaf_H3K27me3 <- import.bw('~/masked_path/plantdhs.org_Ath_leaf_H3K27me3.bw')
+          plantDHS_buds_H3K4me1  <- import.bw('~/masked_path/plantdhs.org_Ath_buds_H3K4me1.bw')
+          plantDHS_leaf_H3K4me1  <- import.bw('~/masked_path/plantdhs.org_Ath_leaf_H3K4me1.bw')
           # DNaseI PlantDHS.org
-          plantDHS_dnase_flower <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/DNase/plantdhs.org_Ath.flower.DNase.bw')
-          plantDHS_dnase_leaf   <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/DNase/plantdhs.org_Ath.leaf.DNase.bw')
+          plantDHS_dnase_flower <- import.bw('~/masked_path/plantdhs.org_Ath.flower.DNase.bw')
+          plantDHS_dnase_leaf   <- import.bw('~/masked_path/plantdhs.org_Ath.leaf.DNase.bw')
           # Nucleosomes PlantDHS.org
-          plantDHS_mnase_buds <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/Nucleosome/plantdhs.org_Ath_nucleosomes_buds_NPS.bw')
-          plantDHS_mnase_leaf <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/Nucleosome/plantdhs.org_Ath_nucleosomes_leaf_NPS.bw')
+          plantDHS_mnase_buds <- import.bw('~/masked_path/plantdhs.org_Ath_nucleosomes_buds_NPS.bw')
+          plantDHS_mnase_leaf <- import.bw('~/masked_path/plantdhs.org_Ath_nucleosomes_leaf_NPS.bw')
               seqlevelsStyle(plantDHS_mnase_buds) <- seqlevelsStyle(myseqinfo)[1]
               seqlevelsStyle(plantDHS_mnase_leaf) <- seqlevelsStyle(myseqinfo)[1]
           # GRO-seq Nature Plants 2018 (Liu & Jacobsen, Nature 2018)
-          GROseq_jac_p <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.plus.bw')
-          GROseq_jac_m <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.minus.bw')
+          GROseq_jac_p <- import.bw('~/masked_path/GROseq_col_mergedAveraged_R123456.plus.bw')
+          GROseq_jac_m <- import.bw('~/masked_path/GROseq_col_mergedAveraged_R123456.minus.bw')
           # GRO-seq PNAS 2016 (Hetzel, PNAS 2016)
-          GROseq_het_p <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_bigwigs/fixed_bws/GROseq_mergedAveraged_R12.plus.bw')
-          GROseq_het_m <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_bigwigs/fixed_bws/GROseq_mergedAveraged_R12.minus.bw')
+          GROseq_het_p <- import.bw('~/masked_path/GROseq_mergedAveraged_R12.plus.bw')
+          GROseq_het_m <- import.bw('~/masked_path/GROseq_mergedAveraged_R12.minus.bw')
           # 5'GRO-seq PNAS 2016 (Hetzel, PNAS 2016)
-          GROcap_het_p <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_bigwigs/fixed_bws/5GROcap.aln.unique.plus.bw')
-          GROcap_het_m <- import.bw('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_bigwigs/fixed_bws/5GROcap.aln.unique.minus.bw')
+          GROcap_het_p <- import.bw('~/masked_path/5GROcap.aln.unique.plus.bw')
+          GROcap_het_m <- import.bw('~/masked_path/5GROcap.aln.unique.minus.bw')
           }
 if(FALSE){
           # 2a) calculate TPM factor
@@ -155,53 +155,53 @@ if(FALSE){
                 GROcap_het_m %<>% subset(score < quantile_GROcap_het)
           
           # 2e) re-export all processed signals
-                export.bw(plantDHS_buds_H3K27ac, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_buds_H3K27ac_TPM99pc.bw')
-                export.bw(plantDHS_leaf_H3K27ac, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_leaf_H3K27ac_TPM99pc.bw')
-                export.bw(plantDHS_buds_H3K27me3, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_buds_H3K27me3_TPM99pc.bw')
-                export.bw(plantDHS_leaf_H3K27me3, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_leaf_H3K27me3_TPM99pc.bw')
-                export.bw(plantDHS_buds_H3K4me1, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_buds_H3K4me1_TPM99pc.bw')
-                export.bw(plantDHS_leaf_H3K4me1, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_leaf_H3K4me1_TPM99pc.bw')
+                export.bw(plantDHS_buds_H3K27ac, '~/masked_path/plantDHS_buds_H3K27ac_TPM99pc.bw')
+                export.bw(plantDHS_leaf_H3K27ac, '~/masked_path/plantDHS_leaf_H3K27ac_TPM99pc.bw')
+                export.bw(plantDHS_buds_H3K27me3, '~/masked_path/plantDHS_buds_H3K27me3_TPM99pc.bw')
+                export.bw(plantDHS_leaf_H3K27me3, '~/masked_path/plantDHS_leaf_H3K27me3_TPM99pc.bw')
+                export.bw(plantDHS_buds_H3K4me1, '~/masked_path/plantDHS_buds_H3K4me1_TPM99pc.bw')
+                export.bw(plantDHS_leaf_H3K4me1, '~/masked_path/plantDHS_leaf_H3K4me1_TPM99pc.bw')
                 
-                export.bw(plantDHS_dnase_flower, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_dnase_flower_TPM99pc.bw')
-                export.bw(plantDHS_dnase_leaf , '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_dnase_leaf_TPM99pc.bw')
+                export.bw(plantDHS_dnase_flower, '~/masked_path/plantDHS_dnase_flower_TPM99pc.bw')
+                export.bw(plantDHS_dnase_leaf , '~/masked_path/plantDHS_dnase_leaf_TPM99pc.bw')
                 
-                export.bw(plantDHS_mnase_buds, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_mnase_buds_TPM99pc.bw')
-                export.bw(plantDHS_mnase_leaf, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_mnase_leaf_TPM99pc.bw')
+                export.bw(plantDHS_mnase_buds, '~/masked_path/plantDHS_mnase_buds_TPM99pc.bw')
+                export.bw(plantDHS_mnase_leaf, '~/masked_path/plantDHS_mnase_leaf_TPM99pc.bw')
                 
-                export.bw(GROseq_jac_p, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/GROseq_jacobsen_TPM99pc.plus.bw')
-                export.bw(GROseq_jac_m, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/GROseq_jacobsen_TPM99pc.minus.bw')
+                export.bw(GROseq_jac_p, '~/masked_path/GROseq_jacobsen_TPM99pc.plus.bw')
+                export.bw(GROseq_jac_m, '~/masked_path/GROseq_jacobsen_TPM99pc.minus.bw')
                 
-                export.bw(GROseq_het_p, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/GROseq_hetzel_TPM99pc.plus.bw')
-                export.bw(GROseq_het_m, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/GROseq_hetzel_TPM99pc.minus.bw')
+                export.bw(GROseq_het_p, '~/masked_path/GROseq_hetzel_TPM99pc.plus.bw')
+                export.bw(GROseq_het_m, '~/masked_path/GROseq_hetzel_TPM99pc.minus.bw')
                 
-                export.bw(GROcap_het_p, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/GROcap_hetzel_TPM99pc.plus.bw')
-                export.bw(GROcap_het_m, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/GROcap_hetzel_TPM99pc.minus.bw')
+                export.bw(GROcap_het_p, '~/masked_path/GROcap_hetzel_TPM99pc.plus.bw')
+                export.bw(GROcap_het_m, '~/masked_path/GROcap_hetzel_TPM99pc.minus.bw')
                 }
 
 # ALL Histone marks (as provided by mivanov)
 # bigwig files
-chipseq <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='.bw', full.names=T) %>% BigWigFileList()
-names(chipseq) <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='.bw') %>% str_remove('.bw')
+chipseq <- list.files('~/masked_path/bigwigs', pattern='.bw', full.names=T) %>% BigWigFileList()
+names(chipseq) <- list.files('~/masked_path/bigwigs', pattern='.bw') %>% str_remove('.bw')
 # bigwig normalization factors (to RPM)
-chipseq_rpm_factor <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/total_bedgraph_reads.txt', h=T, sep='\t') %>%
+chipseq_rpm_factor <- read.table('~/masked_path/total_bedgraph_reads.txt', h=T, sep='\t') %>%
   as_tibble() %>%
   mutate('Sample'=str_remove(Sample, '.bedgraph'), 
          'Author'=str_split(Sample, '_', simplify=T)[,1],
          'Histone_mark'=str_split(Sample, '_', simplify=T)[,2],
          'RPM_factor'=total_reads_in_bedgraph / 1000000)
 # MNaseI PlantDHS.org
-mnase <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_mnase_leaf_TPM99pc.bw')
+mnase <- BigWigFile('~/masked_path/plantDHS_mnase_leaf_TPM99pc.bw')
 
 
 mnase2 <- BigWigFileList(list.files(pattern='mnase', full.names=T))
 names(mnase2) <- c('flower', 'leaf')
 
 # DNaseI PlantDHS.org
-dnase <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_dnase_leaf_TPM99pc.bw')
+dnase <- BigWigFile('~/masked_path/plantDHS_dnase_leaf_TPM99pc.bw')
 # GRO-seq
-gro_p <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*plus', full.names=T))
-gro_m <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*minus', full.names=T))
-names(gro_p) <- names(gro_m) <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*plus') %>% str_remove('_TPM99pc.plus.bw')
+gro_p <- BigWigFileList(list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*plus', full.names=T))
+gro_m <- BigWigFileList(list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*minus', full.names=T))
+names(gro_p) <- names(gro_m) <- list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*plus') %>% str_remove('_TPM99pc.plus.bw')
 # make TSS GRangesList
 tss_list <-list("CAGE"=rowRanges(cage_tss),
                 "nanoPARE"=rowRanges(nanopare_tss),
@@ -286,7 +286,7 @@ quantifyAcrossSample <- function(features, scoring_SE, inputAssay='TPM', sample)
                                  sum(extractList(rowRanges(newSE)$score, hits))
                                  }
 # quantify TSSs across PEAT extended regions
-CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
+CTSSs <- readRDS('~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
 CTSSs_wt <- subset(CTSSs, select=genotype=='wt')
 sampleNames <- CTSSs_wt$Name %>% as.character()
 
