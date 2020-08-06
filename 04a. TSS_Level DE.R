@@ -1,5 +1,5 @@
 #### Arabidopsis flg22 : FULL DE at TC level
-#### Axel Thieffry - July 2018
+#### Axel Thieffry
 set.seed(42)
 library(WriteXLS)
 library(ggrepel)
@@ -46,49 +46,49 @@ get_density <- function(x, y, ...) {dens <- MASS::kde2d(x, y, ...)
                                     iy <- findInterval(y, dens$y)
                                     ii <- cbind(ix, iy)
                                     return(dens$z[ii])}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE')
+setwd('~/masked_path/04 - TSS_Level DE')
 
 
 
 # 1. LOAD ALL INPUT FILES ####
 # ----------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 # id mapping
-idmapping <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/AGI_ID_mapping.rds')
+idmapping <- readRDS('~/masked_path/AGI_ID_mapping.rds')
 # CTSSs
-CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
+CTSSs <- readRDS('~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
 # TCs
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib_TSSstory.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib_TSSstory.rds')
 # CAGE BIGWIG FILES
-cage_p <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*plus'))
-cage_m <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*minus'))
-cage_names <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
+cage_p <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*plus'))
+cage_m <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*minus'))
+cage_names <- list.files('~/masked_path/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
 names(cage_p) <- names(cage_m) <- cage_names
 # RNA-Seq BIGWIG FILES
-rnaseq_forward <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Forward', full.names=T))
-rnaseq_reverse <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Reverse', full.names=T))
-rnaseq_names <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
+rnaseq_forward <- BigWigFileList(list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Forward', full.names=T))
+rnaseq_reverse <- BigWigFileList(list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Reverse', full.names=T))
+rnaseq_names <- list.files(path='~/masked_path/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
 names(rnaseq_forward) <- names(rnaseq_reverse) <- rnaseq_names
 # GROseq Jacobsen
-grohet_p <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.plus.bw')
-grohet_m <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.minus.bw')
+grohet_p <- BigWigFile('~/masked_path/GROseq_col_mergedAveraged_R123456.plus.bw')
+grohet_m <- BigWigFile('~/masked_path/GROseq_col_mergedAveraged_R123456.minus.bw')
 # GROcap Duttke
-grocap_p <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/5GROcap.aln.unique.plus.bw')
-grocap_m <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/5GROcap.aln.unique.minus.bw')
+grocap_p <- BigWigFile('~/masked_path/5GROcap.aln.unique.plus.bw')
+grocap_m <- BigWigFile('~/masked_path/5GROcap.aln.unique.minus.bw')
 # GROseq Duttke
-grodut_p <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/GROseq_mergedAveraged_R12.plus.bw')
-grodut_m <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/GROseq_mergedAveraged_R12.minus.bw')
+grodut_p <- BigWigFile('~/masked_path/GROseq_mergedAveraged_R12.plus.bw')
+grodut_m <- BigWigFile('~/masked_path/GROseq_mergedAveraged_R12.minus.bw')
 # all GROseq at one
-gro_p <- BigWigFileList(c('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.plus.bw',
-                          '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/5GROcap.aln.unique.plus.bw',
-                          '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/GROseq_mergedAveraged_R12.plus.bw'))
-gro_m <- BigWigFileList(c('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.minus.bw',
-                          '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/5GROcap.aln.unique.minus.bw',
-                          '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/GROseq_mergedAveraged_R12.minus.bw'))
+gro_p <- BigWigFileList(c('~/masked_paths/GROseq_col_mergedAveraged_R123456.plus.bw',
+                          '~/masked_path/5GROcap.aln.unique.plus.bw',
+                          '~/masked_path/GROseq_mergedAveraged_R12.plus.bw'))
+gro_m <- BigWigFileList(c('~/masked_path/GROseq_col_mergedAveraged_R123456.minus.bw',
+                          '~/masked_path/5GROcap.aln.unique.minus.bw',
+                          '~/masked_path/GROseq_mergedAveraged_R12.minus.bw'))
 names(gro_p) <- names(gro_m) <- c('GROseq_Hetzel', 'GROcap_Duttke', 'GROseq_Duttke')
 # DHS regions
-dhss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/analysis/new_dhssumits_annotated_plantDHSonly.rds')
+dhss <- readRDS('~/masked_path/new_dhssumits_annotated_plantDHSonly.rds')
 dhss_promoter <- subset(dhss, txType=='promoter') # 20,198
 
 
@@ -104,9 +104,9 @@ if(FALSE) {
           annot_design$genotype %<>% as.factor()
           pheatmap(design, cluster_rows=F, cluster_cols=F, cellwidth=30, cellheight=10, color=c('white', 'black'),
                    main='design: ~ genotype', annotation_row=annot_design, legend=F)
-          saveRDS(design, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/limma_design_matrix.rds')
+          saveRDS(design, '~/masked_path/limma_design_matrix.rds')
           }
-design <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/limma_design_matrix.rds')
+design <- readRDS('~/masked_path/limma_design_matrix.rds')
 # contrasts
 if(FALSE){
           contrasts <- diag(ncol(design))
@@ -115,9 +115,9 @@ if(FALSE){
           rownames(contrasts) <- colnames(design)
           pheatmap(contrasts, cluster_rows=F, cluster_cols=F, color=c('white', 'darkgreen'),
                    main='Contrast matrix', cellwidth=15, cellheight=15, legend=F, display_numbers=T, number_color='white', number_format='%s')
-          saveRDS(contrasts, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/limma_contrast_matrix.rds')
+          saveRDS(contrasts, '~/masked_path/limma_contrast_matrix.rds')
           }
-contrast <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/limma_contrast_matrix.rds')
+contrast <- readRDS('~/masked_path/limma_contrast_matrix.rds')
 
 
 
@@ -153,7 +153,7 @@ degs <- map(coefs, topTable, fit=eb, number=Inf, adjust.method='BH', p.value=0.0
 degs_export <- degs
     # rename coefficients
     degs_export$coef <- ifelse(degs_export$coef=='genotypehen2', 'hen2-4 vs. wt', 'rrpp4-2 vs. wt')
-    WriteXLS::WriteXLS(x=degs_export, SheetNames='CAGE TCs DE', ExcelFileName='~/Dropbox/Flg22_CAGE/Exosome_TSS paper/Figures and layout/Supplementary Data/CAGE_DE.xlsx', row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
+    WriteXLS::WriteXLS(x=degs_export, SheetNames='CAGE TCs DE', ExcelFileName='~/masked_path/CAGE_DE.xlsx', row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
 
 # add to TCs metacolumns
 rowRanges(TCs)$genotyperrp4 <- as.data.frame(dt)$genotyperrp4
@@ -282,10 +282,10 @@ dev.off()
       left_join(select(as.data.frame(rowData(TCs)), thick.names, geneID, txType_TAIR10, symbol, geneID_anti, txType_TAIR10extended, symbol_anti), by=c('TC_id'='thick.names')) %>%
       left_join(select(idmapping, geneID, description), by='geneID') %>%
       left_join(select(idmapping, geneID, 'description_anti'=description), by=c('geneID_anti'='geneID')) %>%
-      WriteXLS(ExcelFileName='~/Dropbox/Flg22_CAGE/Exosome_TSS paper/Data/hen2_specific_upregulated_CAGE_TCs.xls', verbose=T, row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
+      WriteXLS(ExcelFileName='~/masked_path/hen2_specific_upregulated_CAGE_TCs.xls', verbose=T, row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
       
     # output all PROMPTs for GRO-seq support (in another script)
-    saveRDS(TCs, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
+    saveRDS(TCs, '~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
 
 
 # 3d. output bed file for any DE TC in exosome mutant
@@ -335,7 +335,7 @@ dt_exosome <- subset(as.data.frame(dt), genotypehen2 != 0 | genotyperrp4 != 0) %
               seqlevels(genes) <- seqlevels(myseqinfo)
               seqinfo(genes) <- myseqinfo
               
-        export.bed(subset(genes, gene_id %in% antisense_TC_up_genes), '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE/genes_antisense_TC_up.bed.txt')
+        export.bed(subset(genes, gene_id %in% antisense_TC_up_genes), '~/masked_path/genes_antisense_TC_up.bed.txt')
 
 
 # 3e. output bed file of genes with a 3'UTR antisense TSS in rrp4 (and/or hen2)
@@ -365,7 +365,7 @@ dtByAnot$txType_TAIR10 %<>% factor(levels=c('intergenic', 'antisense', 'reverse'
   
 exo_colors2 <- brewer.pal(name='Set3', n=4)[3:4]
 dtByAnot$coef %<>% factor(levels=c('genotypehen2', 'genotyperrp4'))
-saveRDS(dtByAnot, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/dtByAnot.rds')
+saveRDS(dtByAnot, '~/masked_path/dtByAnot.rds')
 
 ggplot() +
        geom_bar(data=subset(dtByAnot, direction=='up'), aes(x=txType_TAIR10, y=nTCs, fill=coef), stat='identity', position=position_dodge(preserve='single'), col='black', lwd=.2) +
@@ -488,7 +488,7 @@ ggplot() +
              scale_fill_manual(values=exo_colors2)
     
     # save TCs for seqlogo analysis only
-    saveRDS(TCs, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_for_seqlogos.rds')
+    saveRDS(TCs, '~/masked_path/SE_TCs_for_seqlogos.rds')
 
 
 
@@ -503,20 +503,20 @@ ggplot() +
   # who are those genes with 3'UTR aTSS?
   threeUTR_aTSS_genes_df <- as.data.frame(threeUTR_aTSSs_gr) %>% as_tibble() %>% select(txType_TAIR10:meanTPM_rrp4)
   # add their description
-  idmapping <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/AGI_ID_mapping.rds')
+  idmapping <- readRDS('~/masked_path/AGI_ID_mapping.rds')
   threeUTR_aTSS_genes_df %<>% left_join(select(idmapping, -name), by=c('geneID_anti'='geneID'))
   # clean
   threeUTR_aTSS_genes_df %<>% select(-Entropy, -symbol, -geneID)
   threeUTR_aTSS_genes_df$genotyperrp4 <- ifelse(threeUTR_aTSS_genes_df$genotyperrp4==1, 'up', ifelse(threeUTR_aTSS_genes_df$genotyperrp4==-1, 'down', 'not DE'))
   threeUTR_aTSS_genes_df$genotypehen2 <- ifelse(threeUTR_aTSS_genes_df$genotypehen2==1, 'up', ifelse(threeUTR_aTSS_genes_df$genotypehen2==-1, 'down', 'not DE'))
   # add if known TF
-  TFs <- read.csv('~/Dropbox/Axel_Arabidopsis_Flagellin/AGRIS/AtTFDB/families_data.txt', sep='\t', h=F, col.names=c('family', 'locus', 'name', 'description', 'bla', 'blaa', 'blaaa', 'blaaaa', 'No')) %>% select(family, locus) %>% as_tibble()
+  TFs <- read.csv('~/masked_path/families_data.txt', sep='\t', h=F, col.names=c('family', 'locus', 'name', 'description', 'bla', 'blaa', 'blaaa', 'blaaaa', 'No')) %>% select(family, locus) %>% as_tibble()
   TFs$locus %<>% toupper()
   threeUTR_aTSS_genes_df %<>% left_join(TFs, by=c('geneID_anti'='locus'))
   # add if DE up in flg22 treatment
-  flg22_de <- rbind(readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_geneLevel_timepoint10_df.rds') %>% as_tibble() %>% mutate('coeff'='timepoint10'),
-                    readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_geneLevel_timepoint30_df.rds') %>% as_tibble() %>% mutate('coeff'='timepoint30'),
-                    readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_geneLevel_wt3010_df.rds') %>% as_tibble() %>% mutate('coeff'='wt3010'))
+  flg22_de <- rbind(readRDS('~/masked_path/DE_geneLevel_timepoint10_df.rds') %>% as_tibble() %>% mutate('coeff'='timepoint10'),
+                    readRDS('~/masked_path/DE_geneLevel_timepoint30_df.rds') %>% as_tibble() %>% mutate('coeff'='timepoint30'),
+                    readRDS('~/masked_path/DE_geneLevel_wt3010_df.rds') %>% as_tibble() %>% mutate('coeff'='wt3010'))
   flg22_de_up <- subset(flg22_de, logFC > 0)
   flg22_de_genes <- unique(flg22_de_up$id)
   threeUTR_aTSS_genes_df$flg22_up <- ifelse(threeUTR_aTSS_genes_df$geneID_anti %in% flg22_de_genes, 'yes', 'no')
@@ -533,12 +533,12 @@ ggplot() +
       # get genes with 3'UTR aTSS that are up in flg22
       tmp_genes <- subset(threeUTR_aTSS_genes_df, flg22_up=='yes')$geneID_anti %>% unique()
       # get genes with down-regulated TCs in flg22 treatement
-      tmp_down_TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_TC.rds') %>% subset(timepoint10 == -1 | timepoint30 == -1 | wt3010 == -1) %>% select(TCid, timepoint10, timepoint30, wt3010, txType)
-      tmp_TCs_flg22 <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/SE_TCs_TPM1_min3lib.rds') %>% rowRanges() %>% as.data.frame() %>% as_tibble()
+      tmp_down_TCs <- readRDS('~/masked_path/DE_TC.rds') %>% subset(timepoint10 == -1 | timepoint30 == -1 | wt3010 == -1) %>% select(TCid, timepoint10, timepoint30, wt3010, txType)
+      tmp_TCs_flg22 <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib.rds') %>% rowRanges() %>% as.data.frame() %>% as_tibble()
       tmp_down_TCs %<>% left_join(tmp_TCs_flg22, by=c('TCid'='thick.names'))
   
   # export to XLSX
-  WriteXLS(threeUTR_aTSS_genes_df, ExcelFileName='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE/3UTR aTSS genes.xlsx', row.names=F, col.names=T, BoldHeaderRow=T)
+  WriteXLS(threeUTR_aTSS_genes_df, ExcelFileName='~/masked_path/3UTR aTSS genes.xlsx', row.names=F, col.names=T, BoldHeaderRow=T)
   # make sure none of them are on ChrC or ChrM
   table(seqnames(threeUTR_aTSSs_gr))
   # output 3'UTR aTSSs for IGV
@@ -570,6 +570,7 @@ ggplot() +
                      scale_color_brewer(palette='Paired', name='Chr') +
                      labs(x='width (log bp)', title='intergenic width')
             summary(width(unique(intergenic_gr)))
+         
   # 4d.2. get 3'UTR regions with antisense TSS
       # all 3'UTR regions
       threeUTRs_gr <- threeUTRsByTranscript(TxDb.Athaliana.BioMart.plantsmart28) %>%
@@ -603,7 +604,7 @@ ggplot() +
             unique(geneID_anti)
           
           subset(idmapping, geneID %in% threeUTR_aTSS_up_genes) %>%
-            WriteXLS('~/Dropbox/Flg22_CAGE/Exosome_TSS paper/Data/gene_list_wit_3UTR_antisense_CAGE_TC_upregulated.xls', row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
+            WriteXLS('~/masked_path/gene_list_wit_3UTR_antisense_CAGE_TC_upregulated.xls', row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
             
       # 3'UTR regions without any aTSS
       threeUTRs_no_aTSS_gr <- subsetByOverlaps(threeUTRs_gr, threeUTRs_with_aTSS_gr, invert=T)
@@ -659,7 +660,7 @@ ggplot() +
       tibble('term'=genes_threeUTR_aTSS_GSEA$term.name, 'pval'=genes_threeUTR_aTSS_GSEA$p.value, 'term.id'=genes_threeUTR_aTSS_GSEA$term.id)
       # gene list of TFs out for PETER
       genes_threeUTR_aTSS_GSEA_TFs <- genes_threeUTR_aTSS_GSEA$intersection %>% str_split(',', simplify=T) %>% as.vector()
-      subset(idmapping, geneID %in% genes_threeUTR_aTSS_GSEA_TFs) %>% WriteXLS('~/Dropbox/Flg22_CAGE/Exosome_TSS paper/Data/gene_list_3UTR_antisense_upregulated_RNAseq_TFs.xls', row.names=F, col.names=T, BoldHeaderRow=T)
+      subset(idmapping, geneID %in% genes_threeUTR_aTSS_GSEA_TFs) %>% WriteXLS('~/masked_path/gene_list_3UTR_antisense_upregulated_RNAseq_TFs.xls', row.names=F, col.names=T, BoldHeaderRow=T)
       
 
 # 4e. HOW MANY 3'UTR-aTSSs HAVE A NORMAL TSS (ON THE OPPOSITE STRAND) IN A REASONNABLE DISTANCE
@@ -743,8 +744,8 @@ ggplot() +
                labs(x="3'UTR width (bp)", y="aTSS distance to 3'end (bp)") + coord_equal()
       
       # export dataset for 3'UTR aTSSs
-      saveRDS(threeUTRs_with_aTSS_gr, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_with_aTSS_gr.rds')
-      saveRDS(threeUTRs_no_aTSS_gr, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_without_aTSS_gr.rds')
+      saveRDS(threeUTRs_with_aTSS_gr, '~/masked_path/threeUTRstory_3utrs_with_aTSS_gr.rds')
+      saveRDS(threeUTRs_no_aTSS_gr, '~/masked_path/threeUTRstory_3utrs_without_aTSS_gr.rds')
       
 
 ### Do the "promoter TSSs" that are down in rrp4 are actually overlapping the gene?
@@ -784,15 +785,15 @@ ggplot() +
     upstream=600 ; downstream=1
     
     test <- data.frame('geneID'    =genes_noOoB_noOverlap$gene_id,
-                       'cage_wt'   =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=cage_p$wt,   reverse=cage_m$wt,   upstream=upstream, downstream=downstream)$anti %>% rowSums(),
+                       'cage_wt'   =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=cage_p$wt, reverse=cage_m$wt,   upstream=upstream, downstream=downstream)$anti %>% rowSums(),
                        'cage_hen2' =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=cage_p$hen2, reverse=cage_m$hen2, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
                        'cage_rrp4' =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=cage_p$rrp4, reverse=cage_m$rrp4, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
-                       'rna_wt'    =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=rnaseq_forward$WT,   reverse=rnaseq_reverse$WT, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
-                       'rna_lsm8'  =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=rnaseq_forward$LSM8,   reverse=rnaseq_reverse$LSM8, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
-                       'rna_dm'    =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=rnaseq_forward$DM,   reverse=rnaseq_reverse$DM, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
+                       'rna_wt'    =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=rnaseq_forward$WT, reverse=rnaseq_reverse$WT, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
+                       'rna_lsm8'  =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=rnaseq_forward$LSM8, reverse=rnaseq_reverse$LSM8, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
+                       'rna_dm'    =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=rnaseq_forward$DM, reverse=rnaseq_reverse$DM, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
                        'rna_rrp4'  =wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=rnaseq_forward$RRP4, reverse=rnaseq_reverse$RRP4, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
-                       'GROseq_het'=wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=grohet_p,    reverse=grohet_m, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
-                       'GROcap_dut'=wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=grocap_p,    reverse=grocap_m, upstream=upstream, downstream=downstream)$anti %>% rowSums()) %>%
+                       'GROseq_het'=wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=grohet_p, reverse=grohet_m, upstream=upstream, downstream=downstream)$anti %>% rowSums(),
+                       'GROcap_dut'=wideMetaProfile(sites=resize(genes_noOoB_noOverlap, width=1, fix='start'), forward=grocap_p, reverse=grocap_m, upstream=upstream, downstream=downstream)$anti %>% rowSums()) %>%
             as_tibble()
 
     # get PROMPTs: UP TCs annotated as "reverse"
@@ -807,16 +808,11 @@ ggplot() +
       rename('peak'='thick.start', 'TC_id'='thick.names', 'CAGE_DE_hen2'='genotypehen2', 'CAGE_DE_rrp4'='genotyperrp4')
     View(all_prompts_df)
     
-    export.bed(all_prompts, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE/CAGE_PROMPTs.bed')
+    export.bed(all_prompts, '~/masked_path/CAGE_PROMPTs.bed')
     
     # how many genes with CAGE PROMPT are found in Chekanova 2007?: NONE
-    chekanova_2007_unts <- readxl::read_xlsx('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6d. Chekanova UNTs/Chekanova 2007 UNTs in rrp4est.xlsx') %>% as_tibble()
+    chekanova_2007_unts <- readxl::read_xlsx('~/masked_path/Chekanova 2007 UNTs in rrp4est.xlsx') %>% as_tibble()
     table(all_prompts_df$geneID_anti %in% chekanova_2007_unts$AGI)
-
-    # HERE HERE HERE
-    # HERE HERE HERE
-    # HERE HERE HERE
-    # HERE HERE HERE
     
     # add if gene has PROMPT
     test$PROMPT <- ifelse(test$geneID %in% all_prompts$geneID_anti, TRUE, FALSE)
@@ -968,7 +964,7 @@ ggplot() +
       # log-log hen2 / wt
       tt_genotypehen2 <- topTable(fit=eb, coef='genotypehen2', number=Inf, adjust.method='BH', p.value=0.05, lfc=1) %>% rownames_to_column('id') %>% as_tibble()
       tt_genotypehen2 %<>% left_join(as.data.frame(rowRanges(TCs)) %>% select(thick.names, txType_TAIR10, geneID, symbol), by=c('id'='thick.names'))
-      saveRDS(tt_genotypehen2, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/DE_TSSs_topTable_genotypehen2.rds')
+      saveRDS(tt_genotypehen2, '~/masked_path/DE_TSSs_topTable_genotypehen2.rds')
       
       volc_hen2 <- topTable(fit=eb, coef='genotypehen2', number=Inf, adjust.method='BH') %>%
                    rownames_to_column('id') %>%
@@ -990,7 +986,7 @@ ggplot() +
       # log-log rrp4 / wt
       tt_genotyperrp4 <- topTable(fit=eb, coef='genotyperrp4', number=Inf, adjust.method='BH', p.value=0.05, lfc=1) %>% rownames_to_column('id') %>% as_tibble()
       tt_genotyperrp4 %<>% left_join(as.data.frame(rowRanges(TCs)) %>% select(thick.names, txType_TAIR10, geneID, symbol), by=c('id'='thick.names'))
-      saveRDS(tt_genotyperrp4, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/DE_TSSs_topTable_genotyperrp4.rds')
+      saveRDS(tt_genotyperrp4, '~/masked_path/DE_TSSs_topTable_genotyperrp4.rds')
       
       volc_rrp4 <- topTable(fit=eb, coef='genotyperrp4', number=Inf, adjust.method='BH') %>%
                    rownames_to_column('id') %>%
@@ -1076,7 +1072,7 @@ ggplot() +
               group_by_all() %>%
               summarise('count'=n())
             
-            saveRDS(dtByAnot_antisense, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/dtByAnot_antisense.rds')
+            saveRDS(dtByAnot_antisense, '~/masked_path/dtByAnot_antisense.rds')
             
             ggplot(dtByAnot_antisense, aes(x=txType_TAIR10extended, y=ifelse(direction=='down', -count, count), fill=coef)) +
                    geom_bar(stat='identity', position=position_dodge(), col='black', lwd=.2) +
@@ -1170,197 +1166,3 @@ ggplot() +
 
         # get PROMPTs
         subset(exo_antisense_up, txType_TAIR10extended=='antisense_proximal')$geneID_anti
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 5. ALTERNATIVE TSS ANALYSIS DURING TIMECOURSE #### USE THE OTHER TC DATASET MADE IN PART ONE!!
-# --------------------------------------------------
-# 4a) geneLevel TPM expression for treatment
-load('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/RDATA/SE_geneLevel.Rdata', verbose=T)
-# let's try when considering gene expression only in WT for the treatment
-gene_expression <- data.frame('wt_0_tpm_gene'    = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('wt_0')) %>% rowMeans(),
-                              'wt_10_tpm_gene'   = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('wt_10')) %>% rowMeans(),
-                              'wt_30_tpm_gene'   = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('wt_30')) %>% rowMeans(),
-                              'hen2_0_tpm_gene'  = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('hen2_0')) %>% rowMeans(),
-                              'hen2_10_tpm_gene' = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('hen2_10')) %>% rowMeans(),
-                              'hen2_30_tpm_gene' = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('hen2_30')) %>% rowMeans(),
-                              'rrp4_0_tpm_gene'  = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('rrp4_0')) %>% rowMeans(),
-                              'rrp4_30_tpm_gene' = assay(geneLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('rrp4_30')) %>% rowMeans())
-gene_expression$geneID <- rownames(gene_expression)
-rownames(gene_expression) <- NULL
-# add TC expression ratio to gene
-tc_expression <- data.frame('wt_0_tpm_tc'    = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('wt_0')) %>% rowMeans(),
-                            'wt_10_tpm_tc'   = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('wt_10')) %>% rowMeans(),
-                            'wt_30_tpm_tc'   = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('wt_30')) %>% rowMeans(),
-                            'hen2_0_tpm_tc'  = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('hen2_0')) %>% rowMeans(),
-                            'hen2_10_tpm_tc' = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('hen2_10')) %>% rowMeans(),
-                            'hen2_30_tpm_tc' = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('hen2_30')) %>% rowMeans(),
-                            'rrp4_0_tpm_tc'  = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('rrp4_0')) %>% rowMeans(),
-                            'rrp4_30_tpm_tc' = assay(txLevel) %>% cpm() %>% as.data.frame() %>% select(., matches('rrp4_30')) %>% rowMeans())
-tc_expression$TCid <- rownames(tc_expression)
-tc_expression$geneID <- rowRanges(txLevel)$geneID
-rownames(tc_expression) <- NULL
-# merge both
-tpm_expression <- left_join(tc_expression, gene_expression, by='geneID')
-rm(tc_expression, gene_expression)
-# compute average TPM expression by timepoint, independent of genotype
-tpm_expression$aveGeneExp_0 <- select(tpm_expression, matches('_0_tpm_gene')) %>% rowMeans()
-tpm_expression$aveGeneExp_10 <- select(tpm_expression, matches('_10_tpm_gene')) %>% rowMeans()
-tpm_expression$aveGeneExp_30 <- select(tpm_expression, matches('_30_tpm_gene')) %>% rowMeans()    
-# compute average TC expression by timepoint, independent of genotype
-tpm_expression$aveTCexp_0 <- select(tpm_expression, matches('_0_tpm_tc')) %>% rowMeans()
-tpm_expression$aveTCexp_10 <- select(tpm_expression, matches('_10_tpm_tc')) %>% rowMeans()
-tpm_expression$aveTCexp_30 <- select(tpm_expression, matches('_30_tpm_tc')) %>% rowMeans()
-# reorder columns & save
-tpm_expression <- select(tpm_expression, TCid, geneID,
-                                         wt_0_tpm_tc, wt_10_tpm_tc, wt_30_tpm_tc, hen2_0_tpm_tc, hen2_10_tpm_tc, hen2_30_tpm_tc, rrp4_0_tpm_tc, rrp4_30_tpm_tc,
-                                         wt_0_tpm_gene, wt_10_tpm_gene, wt_30_tpm_gene, hen2_0_tpm_gene, hen2_10_tpm_gene, hen2_30_tpm_gene, rrp4_0_tpm_gene, rrp4_30_tpm_gene,
-                                         aveGeneExp_0, aveGeneExp_10, aveGeneExp_30,
-                                         aveTCexp_0, aveTCexp_10, aveTCexp_30)
-save(tpm_expression, file='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/RDATA/panExperiment_tc_and_gene_TPM_expression_mean_R123.Rdata')
-
-
-# 5b) number of TSS per gene and their DE status
-    # keep only DE info for timecourse
-    TSS_per_gene <- tcdf %>% as.data.frame() %>% select(timepoint10, timepoint30, wt3010) %>% mutate('TCid'=rownames(.))
-    # add gene for each TSS
-    TSS_per_gene %<>% mutate('geneID'=rowRanges(txLevel)$geneID)
-    # remove TSS not attributed to a gene
-    TSS_per_gene %<>% subset(!is.na(geneID)) # 24,291 gene-attributed TSSs
-    # add DE info: is the TSS DE at any treatment timepoint, and in any direction?
-    TSS_per_gene$isTimecourseDE <- select(TSS_per_gene, -TCid, -geneID) %>% apply(1, function(x) ifelse(any(x != 0), 'DE', 'not DE'))
-    TSS_per_gene$isTimecourseDE %<>% factor(levels=c('not DE', 'DE'))
-    # add total number of known TSSs in the gene
-    TSS_per_gene %<>% left_join(., table(TSS_per_gene$geneID) %>% as.data.frame() %>% set_colnames(c('geneID', 'knownTSSnb')), by='geneID')
-    # add total number of DE TSSs in the gene
-    tmp <- TSS_per_gene %>% group_by(geneID) %>% summarise('deTSSnb'=sum(isTimecourseDE=='DE'))
-    TSS_per_gene %<>% left_join(., tmp, by='geneID')
-    rm(tmp)
-    # add structure (single/multi-TSS as a factor)
-    TSS_per_gene %<>% mutate('structure'=ifelse(.$knownTSSnb > 1, 'multi-TSS', 'single-TSS') %>% as.factor())
-    # plot
-    head(TSS_per_gene)
-    ggplot(TSS_per_gene, aes(x=as.factor(knownTSSnb), fill=interaction(structure, isTimecourseDE, lex.order=T, sep=' '))) +
-           geom_bar() + labs(x='Gene structure', y='Nb. of TSSs', title='Flagellin-induced TSSs by gene structure') +
-           scale_fill_brewer(palette='Paired', name='') + theme(aspect.ratio=1.5, legend.position='bottom') + guides(fill=guide_legend(ncol=2))
-
-# 5c) Limma DTU detection : topSplice FDR setting is buggy, better to subset on FDR manually
-ex <- diffSplice(fit=fit, geneid=rowRanges(txLevel)$geneID, exonid=names(rowRanges(txLevel)), robust=TRUE, verbose=TRUE)
-# retrieve exon-level DTUs, using the t-statistic
-dtu_timepoint10  <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='timepoint10'), FDR <= 0.05) ; dim(dtu_timepoint10) # 178
-dtu_wt3010       <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='wt3010'),      FDR <= 0.05) ; dim(dtu_wt3010) # 367
-dtu_timepoint30  <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='timepoint30'), FDR <= 0.05) ; dim(dtu_timepoint30) # 848
-dtu_genotypehen2 <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='genotypehen2'), FDR <= 0.05) ; dim(dtu_genotypehen2) # 237
-dtu_genotyperrp4 <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='genotyperrp4'), FDR <= 0.05) ; dim(dtu_genotyperrp4) # 498
-dtu_genotypehen2.timepoint10 <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='genotypehen2.timepoint10'), FDR <= 0.05) ; dim(dtu_genotypehen2.timepoint10) # 0
-dtu_genotypehen2.timepoint30 <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='genotypehen2.timepoint30'), FDR <= 0.05) ; dim(dtu_genotypehen2.timepoint30) # 0
-dtu_genotyperrp4.timepoint30 <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='genotyperrp4.timepoint30'), FDR <= 0.05) ; dim(dtu_genotyperrp4.timepoint30) # 2
-dtu_hen3010 <- subset(topSplice(ex, test='t', FDR=1, number=Inf, coef='hen3010'), FDR <= 0.05) ; dim(dtu_hen3010) # 0
-    # plot number of DTU genes per coefficient
-    tot_dtu_per_coef <- data.frame('coefficient'=c('t=10', 't=30/10', 't=30', 'hen2', 'rrp4'),
-                                   'DTU genes'=c( length(unique(dtu_timepoint10$GeneID)), length(unique(dtu_wt3010$GeneID)), length(unique(dtu_timepoint30$GeneID)), 
-                                                  length(unique(dtu_genotypehen2$GeneID)), length(unique(dtu_genotyperrp4$GeneID))),
-                                   'Base effect'=c(rep('Flg22', 3), rep('Exosome', 2)))
-    tot_dtu_per_coef$coefficient %<>% factor(levels=c('t=10', 't=30/10', 't=30', 'hen2', 'rrp4'))
-    ggplot(tot_dtu_per_coef, aes(x=coefficient, y=DTU.genes, fill=Base.effect)) + geom_bar(stat='identity') +
-           labs(x='', y='Nb. DTU genes (1165)') + scale_fill_brewer(palette='Set1', name='Base effect', direction=-1) +
-           geom_text(aes(label=DTU.genes), vjust=-1) + theme(aspect.ratio=1.5)
-
-# merge all treatment DTUs
-dtus <- rbind(dtu_timepoint10, dtu_timepoint30, dtu_wt3010) ; dim(dtus) # 1393
-# add coefficient
-dtus$coefficient <- c(rep('timepoint10', nrow(dtu_timepoint10)),
-                      rep('timepoint30', nrow(dtu_timepoint30)),
-                      rep('wt3010', nrow(dtu_wt3010)))
-# add UP/DOWN factor for DE
-dtus$direction <- ifelse(dtus$logFC > 0, 'up', 'down') %>% as.factor()
-# add WT TPM expression of TCs and gene
-dtus <- left_join(dtus, dplyr::select(tpm_expression, TCid, wt_0_tpm_tc, wt_0_tpm_gene, wt_10_tpm_tc, wt_10_tpm_gene, wt_30_tpm_tc, wt_30_tpm_gene), by=c('ExonID'='TCid'))
-head(dtus)
-subset(dtus, coefficient=='timepoint10' & direction=='up')[with(subset(dtus, coefficient=='timepoint10' & direction=='up'), aveTCexp_10 <= aveTCexp_0), ]
-
-
-
-
-# # # # # # # # # #
-# Actual Analysis #
-# # # # # # # # # #
-t10   <- subset(dtus, coefficient=='timepoint10') ; dim(t10) # 178
-t3010 <- subset(dtus, coefficient=='wt3010') ; dim(t3010) # 367
-t30   <- subset(dtus, coefficient=='timepoint30') ; dim(t30) # 848
-# a) gene must have at least 2 TSSs: OK
-all(t10$GeneID %in% multiTSSgenes$geneID) #ok
-all(t3010$GeneID %in% multiTSSgenes$geneID) #ok
-all(t30$GeneID %in% multiTSSgenes$geneID) #ok
-# b) at least on TSS must be up-regulated
-  # list of genes with one up-regulated TC in timepoint10
-  lst_10 <- subset(df, timepoint10 == 1)$geneID %>% unique() # 552
-  lst_3010 <- subset(df, wt3010 == 1)$geneID %>% unique() # 1456
-  lst_30 <- subset(df, timepoint30 == 1)$geneID %>% unique() # 1847
-  t10 <- subset(t10, GeneID %in% lst_10) # 90
-  t3010 <- subset(t3010, GeneID %in% lst_3010) # 231
-  t30 <- subset(t30, GeneID %in% lst_30) # 506
-# c) the up-regulated TSS must contribute at least 10% of gene expression
-  # calculate gene expression ratio
-  t10 <- mutate(t10, 'ratio_t0'=aveTCexp_0/aveGeneExp_0*100,
-                     'ratio_t10'=aveTCexp_10/aveGeneExp_10*100)
-  t3010 <- mutate(t3010, 'ratio_t10'=aveTCexp_10/aveGeneExp_10*100,
-                         'ratio_t30'=aveTCexp_30/aveGeneExp_30*100)
-  t30 <- mutate(t30, 'ratio_t0'=aveTCexp_0/aveGeneExp_0*100,
-                     'ratio_t30'=aveTCexp_30/aveGeneExp_30*100)
-  # make list of genes with TSS up >= 10%
-  lst_10 <- subset(t10, direction == 'up' & ratio_t10 >= 10)$GeneID %>% unique() # 32
-  lst_3010 <- subset(t3010, direction == 'up' & ratio_t30 >= 10)$GeneID %>% unique() # 90
-  lst_30 <- subset(t30, direction == 'up' & ratio_t30 >= 10)$GeneID %>% unique() # 200
-  t10 <- subset(t10, GeneID %in% lst_10) # 61
-  t3010 <- subset(t3010, GeneID %in% lst_3010) # 186
-  t30 <- subset(t30, GeneID %in% lst_30) # 396
-
-t10$GeneID %>% unique() # 32
-t3010$GeneID %>% unique() # 90
-t30$GeneID %>% unique() # 200
-
-# Venn diagram of DTUs
-venn(x=list(t10$GeneID, t3010$GeneID, t30$GeneID),
-     snames=c('DTUgenes_10', 'DTUgenes_30/10','DTUgenes_30'),
-     cexil=2, cexsn=1,
-     zcolor=c('green', 'blue', 'orange'))
-
-
-# d) categorization of alternative TSSs:
-  # one TSS up, another is down = proper TSS switch
-  dim(dtus)
-  unique(dtus$GeneID) %>% length()
-  test <- dtus %>% group_by(GeneID, coefficient) %>% summarise('any_up'=any(direction=='up'), 'any_down'=any(direction=='down')) %>% as.data.frame()
-  subset(dtus, GeneID %in% subset(test, any_up==T & any_down==T)$GeneID)
-  subset(test, any_up==T & any_down==F) %>% dim()
-  categories <- table('timepoint'=test$coefficient, 'UP'=test$any_up, 'DOWN'=test$any_down) %>% melt() %>% as.data.frame()
-  sum(categories$value)
-  # one TSS up, no other not down = alternative alternative TSS (by default those that don't qualify in the previous criteria)
-
-
-  
-# EXPORT DATA
-# ALL PROMPTS: 96 TCs that are annotated as 'reverse' and up-regualted in hen2 or rrp4
-rowRanges(TCs) %>%
-  subset(txType_TAIR10=='reverse' & (genotypehen2==1 | genotyperrp4==1)) %>%
-  as.data.frame() %>%
-  left_join(idmapping, by=c('geneID_anti'='geneID')) %>%
-  WriteXLS::WriteXLS(ExcelFileName='~/Desktop/prompts.xlsx', row.names=F, col.names=T, AdjWidth=T, BoldHeaderRow=T)
-
-readxl::read_xlsx('~/Dropbox/Flg22_CAGE/Exosome_TSS paper/PLANT CELL/Supplementary Data S1 - CAGE TCs.xlsx', sheet='Unidirectional TCs', col_names=T) %>%
-  left_join(idmapping, by=c('geneID_TAIR10'='geneID')) %>%
-  rename('gene_symbol'='name', 'gene_description'='description') %>%
-  left_join(idmapping, by=c('geneID_TAIR10_anti'='geneID')) %>%
-  rename('gene_anti_symbol'='name', 'gene_anti_descrition'='description') %>%
-  WriteXLS::WriteXLS('~/Desktop/Uni_TCs.xlsx', row.names=F, col.names=T)
