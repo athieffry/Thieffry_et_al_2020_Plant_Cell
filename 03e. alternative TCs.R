@@ -1,5 +1,5 @@
 #### 03d. Alternative TCS 
-#### Axel Thieffry - July 2019
+#### Axel Thieffry
 set.seed(42)
 library(tidyverse)
 library(tidylog)
@@ -18,7 +18,7 @@ options(scipen=999) # disable scientific notation
 'select' <- dplyr::select
 'rename' <- dplyr::rename
 '%!in%' <- function(x,y)!('%in%'(x,y))
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis')
+setwd('~/masked_path/03 - TSS analysis')
 
 
 
@@ -26,12 +26,12 @@ setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/03 - TSS analysis'
 # 1. GET INPUT DATA ####
 # ----------------------
 # CAGE TCs
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib_TSSstory.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib_TSSstory.rds')
 # CAGE genes (timepoint 0 only)
-geneLevel <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_genelevel_TSSstory.rds')
+geneLevel <- readRDS('~/masked_path/SE_genelevel_TSSstory.rds')
 # CAGE DE (timepoint 0 only)
-de_hen2 <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/DE_TSSs_topTable_genotypehen2.rds')
-de_rrp4 <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/DE_TSSs_topTable_genotyperrp4.rds')
+de_hen2 <- readRDS('~/masked_path/DE_TSSs_topTable_genotypehen2.rds')
+de_rrp4 <- readRDS('~/masked_path/DE_TSSs_topTable_genotyperrp4.rds')
 
 
 # 2. COMPUTE TPM EXPRESSION ####
@@ -240,8 +240,6 @@ subset(data_wt10, geneID %in% bi_TSS_genes) %$%
   subset(promoter==1 & CDS == 1) %>% View()
   
   
-
-
 
 # 5. EXOSOME SENSITIVITY OF ALTERNATIVE TCs ####
 # ----------------------------------------------
