@@ -1,5 +1,5 @@
 #### comparison with Tokizawa
-#### Axel Thieffry - February 2019
+#### Axel Thieffry
 library(tidyverse)
 library(magrittr)
 library(reshape2)
@@ -21,19 +21,19 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      else {o <- GR}
                                      o}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6b. comparison Tokizawa/')
+setwd('~/masked_path/6b. comparison Tokizawa/')
 
 # 1. READ DATA ####
 # -----------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 # CAGE wildtype TSSs (t=0)
-TCs_ctrl <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_ctrl.rds') # 21,221
+TCs_ctrl <- readRDS('~/masked_path/SE_TCs_ctrl.rds') # 21,221
 # TAIR10 TSSs (comparable to CAGE WT ctrl)
-tair_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TAIR10_comparable_TSSs_with_WTctrl0.rds')
+tair_tss <- readRDS('~/masked_path/SE_TAIR10_comparable_TSSs_with_WTctrl0.rds')
 seqinfo(tair_tss) <- myseqinfo
 # ARAPORT11 TSSs (comparable to CAGE WT ctrl)
-araport_tss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_ARAPORT11_comparable_TSSs_with_WTctrl0.rds')
+araport_tss <- readRDS('~/masked_path/SE_ARAPORT11_comparable_TSSs_with_WTctrl0.rds')
 seqinfo(araport_tss) <- myseqinfo
 # Tokizawa
 toki_tair <- read.table('Tokizawa data/Data S1 - Information about maximum 5 utr regions - TAIR10.txt', col.names=c('chr', 'source', 'type', 'start', 'end', 'score', 'strand', 'phase', 'parent')) %>% as_tibble()
@@ -80,14 +80,14 @@ seqlevels(toki_arap_gr, pruning.mode='coarse') <- setdiff(seqlevels(myseqinfo), 
 # 1. QUICK FOOTPRINT ####
 # -----------------------
 # MNaseI PlantDHS.org
-mnase <- BigWigFile('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_mnase_leaf_TPM99pc.bw')
+mnase <- BigWigFile('~/masked_path/plantDHS_mnase_leaf_TPM99pc.bw')
 
 # GRO-seq Nature Plants 2018 (Jacobsen)
 # GRO-seq PNAS 2016 (Hetzel)
 # 5'GRO-seq PNAS 2016 (Hetzel)
-gro_p <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*plus', full.names=T))
-gro_m <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*minus', full.names=T))
-names(gro_p) <- names(gro_m) <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses/', pattern='GRO.*plus') %>% str_remove('_TPM99pc.plus.bw')
+gro_p <- BigWigFileList(list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*plus', full.names=T))
+gro_m <- BigWigFileList(list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*minus', full.names=T))
+names(gro_p) <- names(gro_m) <- list.files('~/masked_path/02 - Enhancers analyses/', pattern='GRO.*plus') %>% str_remove('_TPM99pc.plus.bw')
 
 # make 1bp GRanges
 cage_1bp_tss <- swapRanges(rowRanges(TCs_ctrl))
