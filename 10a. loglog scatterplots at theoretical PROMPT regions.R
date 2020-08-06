@@ -1,5 +1,5 @@
 #### Arabidopsis TSS/exosome: scatter plot
-#### Axel Thieffry - November 2019
+#### Axel Thieffry
 set.seed(42)
 library(pheatmap)
 library(patchwork)
@@ -30,42 +30,42 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
 else {o <- GR}
 o}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/10 - smRNA at PROMPTs/together')
+setwd('~/masked_path/together')
 
 # 1. LOAD ALL INPUT FILES ####
 # ----------------------------
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
-idmapping <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/AGI_ID_mapping.rds')
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib_TSSstory.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
+idmapping <- readRDS('~/masked_path/AGI_ID_mapping.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib_TSSstory.rds')
 seqlevels(TCs) <- c(paste0('Chr', 1:5), 'ChrC', 'ChrM')
 
 # small RNA-seq BIGWIGs (Dec 2019) : all lengths - RAW COUNTS
     # leaf (rosette)
-    sRNA_plus_counts_leaf <- list.files('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/3.bigwigs_alltogether', pattern='*Forward', full.names=T) %>% BigWigFileList()
-    sRNA_minus_counts_leaf <- list.files('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/3.bigwigs_alltogether', pattern='*Reverse', full.names=T) %>% BigWigFileList()
-    sRNA_names_counts_leaf <- list.files('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/3.bigwigs_alltogether', pattern='*Forward') %>%
+    sRNA_plus_counts_leaf <- list.files('~/masked_path/3.bigwigs_alltogether', pattern='*Forward', full.names=T) %>% BigWigFileList()
+    sRNA_minus_counts_leaf <- list.files('~/masked_path/3.bigwigs_alltogether', pattern='*Reverse', full.names=T) %>% BigWigFileList()
+    sRNA_names_counts_leaf <- list.files('~/masked_path/3.bigwigs_alltogether', pattern='*Forward') %>%
                               str_remove('.Forward.raw.bw')
     names(sRNA_plus_counts_leaf) <- names(sRNA_minus_counts_leaf) <- sRNA_names_counts_leaf
     # flowers
-    sRNA_plus_counts_flower <- list.files('~/Dropbox/Peter_exosome_re-analysis/2.bigWigs_rawcounts_all_lengths', pattern='*Forward', full.names=T) %>% BigWigFileList()
-    sRNA_minus_counts_flower <- list.files('~/Dropbox/Peter_exosome_re-analysis/2.bigWigs_rawcounts_all_lengths', pattern='*Reverse', full.names=T) %>% BigWigFileList()
-    sRNA_names_counts_flower <- list.files('~/Dropbox/Peter_exosome_re-analysis/2.bigWigs_rawcounts_all_lengths', pattern='*Forward') %>%
+    sRNA_plus_counts_flower <- list.files('~/masked_path/2.bigWigs_rawcounts_all_lengths', pattern='*Forward', full.names=T) %>% BigWigFileList()
+    sRNA_minus_counts_flower <- list.files('~/masked_path/2.bigWigs_rawcounts_all_lengths', pattern='*Reverse', full.names=T) %>% BigWigFileList()
+    sRNA_names_counts_flower <- list.files('~/masked_path/2.bigWigs_rawcounts_all_lengths', pattern='*Forward') %>%
                                 str_remove('.Forward.bw')
     names(sRNA_plus_counts_flower) <- names(sRNA_minus_counts_flower) <- sRNA_names_counts_flower
 
 # small RNA-seq stats
     # leaf (rosette)
-    stats_leaf <- readxl::read_xlsx('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
+    stats_leaf <- readxl::read_xlsx('~/masked_path/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
                   as_tibble() %>%
                   select(-Raw_read_length)
     # flower
-    stats_flower <- readxl::read_xlsx('~/Dropbox/Peter_exosome_re-analysis/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
+    stats_flower <- readxl::read_xlsx('~/masked_path/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
                     as_tibble() %>%
                     select(-Raw_read_length)
 
 # get genes hosting a PROMPT CAGE TC
 # get PROMPT TC GR (N=96)
-PROMPT_TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds') %>%
+PROMPT_TCs <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds') %>%
   rowRanges() %>%
   subset(genotypehen2==1 | genotyperrp4==1) %>%
   subset(txType_TAIR10=='reverse')
@@ -94,14 +94,6 @@ normFact_flower <- with(stats_flower, data.frame('Sample'=str_remove(Sample, '-5
 
 # 3. MAKE THEORETICAL PROMPT REGIONS: -500 bp from annotated TSSs ###
 # -------------------------------------------------------------------
-
-#                              TSS
-#                             |
-#                             => => => => => => => GENE BODY => => => => => =>
-#     -> -> -> -> -> -> -> ->
-#    |     PROMPT region (same orientation as gene)
-#    1bp position
-
 # 3a) get PROMPT regions (-500 bp from TSS) (N=33542)
 theo_prompts <- suppressWarnings( genes(txdb) %>%
                                     promoters(upstream=500, downstream=0) %>%
@@ -138,7 +130,6 @@ theo_prompts_1bp <- resize(theo_prompts, width=1, fix='start')
 
 
 
-
 # 4. COMPUTE smRNA COVERAGE AT THEORETICAL PROMPT REGIONS ####
 # ------------------------------------------------------------
 if(FALSE) {
@@ -161,12 +152,12 @@ if(FALSE) {
       signal_theo_prompts_flower_altogether <- lapply(wideMeta_signal_theo_prompts_flower_altogether, function(x) rowSums(x$sense) + rowSums(x$anti))
       
       # 4c) save
-      saveRDS(signal_theo_prompts_leaf_altogether, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/10 - smRNA at PROMPTs/together/scatter_signal_theo_prompts_leaf_altogether.rds')
-      saveRDS(signal_theo_prompts_flower_altogether, '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/10 - smRNA at PROMPTs/together/scatter_signal_theo_prompts_flower_altogether.rds')
+      saveRDS(signal_theo_prompts_leaf_altogether, '~/masked_path/scatter_signal_theo_prompts_leaf_altogether.rds')
+      saveRDS(signal_theo_prompts_flower_altogether, '~/masked_path/scatter_signal_theo_prompts_flower_altogether.rds')
 }
 
-signal_theo_prompts_leaf_altogether <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/10 - smRNA at PROMPTs/together/scatter_signal_theo_prompts_leaf_altogether.rds')
-signal_theo_prompts_flower_altogether <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/10 - smRNA at PROMPTs/together/scatter_signal_theo_prompts_flower_altogether.rds')
+signal_theo_prompts_leaf_altogether <- readRDS('~/masked_path/scatter_signal_theo_prompts_leaf_altogether.rds')
+signal_theo_prompts_flower_altogether <- readRDS('~/masked_path/scatter_signal_theo_prompts_flower_altogether.rds')
 
 
 
