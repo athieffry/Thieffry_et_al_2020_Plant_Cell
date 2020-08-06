@@ -1,5 +1,5 @@
 #### Arabidopsis TSS/exosome: boxplot of smRNA at CAGE TC PROMPT regions -vs- mRNA region by quantiles
-#### Axel Thieffry - November 2019
+#### Axel Thieffry
 set.seed(42)
 library(pheatmap)
 library(patchwork)
@@ -31,15 +31,15 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      else {o <- GR}
                                      o}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/10 - smRNA at PROMPTs/together')
+setwd('~/masked_path/together')
 
 
 
 # 1. LOAD ALL INPUT FILES ####
 # ----------------------------
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
-idmapping <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/AGI_ID_mapping.rds')
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib_TSSstory.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
+idmapping <- readRDS('~/masked_path/AGI_ID_mapping.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib_TSSstory.rds')
 seqlevels(TCs) <- c(paste0('Chr', 1:5), 'ChrC', 'ChrM')
 
 # cage data
@@ -51,31 +51,31 @@ names(cage_p) <- names(cage_m) <- cage_names
 
 # small RNA-seq BIGWIGs (Dec 2019) : individual lengths - RAW COUNTS
   # leaf (rosette)
-  sRNA_plus_counts_leaf_byLength <- list.files('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/4.bigwigs_by_length', pattern='*Forward', full.names=T) %>% BigWigFileList()
-  sRNA_minus_counts_leaf_byLength <- list.files('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/4.bigwigs_by_length', pattern='*Reverse', full.names=T) %>% BigWigFileList()
-  sRNA_names_counts_leaf_byLength <- list.files('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/4.bigwigs_by_length', pattern='*Forward') %>%
+  sRNA_plus_counts_leaf_byLength <- list.files('~/masked_path/4.bigwigs_by_length', pattern='*Forward', full.names=T) %>% BigWigFileList()
+  sRNA_minus_counts_leaf_byLength <- list.files('~/masked_path/4.bigwigs_by_length', pattern='*Reverse', full.names=T) %>% BigWigFileList()
+  sRNA_names_counts_leaf_byLength <- list.files('~/masked_path/4.bigwigs_by_length', pattern='*Forward') %>%
                                      str_remove('.Forward.bw') %>% str_replace('\\.', '_')
   names(sRNA_plus_counts_leaf_byLength) <- names(sRNA_minus_counts_leaf_byLength) <- sRNA_names_counts_leaf_byLength
   # flower
-  sRNA_plus_counts_flower_byLength <- list.files('~/Dropbox/Peter_exosome_re-analysis/3.bigWigs_rawcounts_splitted_by_lengths', pattern='*Forward', full.names=T) %>% BigWigFileList()
-  sRNA_minus_counts_flower_byLength <- list.files('~/Dropbox/Peter_exosome_re-analysis/3.bigWigs_rawcounts_splitted_by_lengths', pattern='*Reverse', full.names=T) %>% BigWigFileList()
-  sRNA_names_counts_flower_byLength <- list.files('~/Dropbox/Peter_exosome_re-analysis/3.bigWigs_rawcounts_splitted_by_lengths', pattern='*Forward') %>%
+  sRNA_plus_counts_flower_byLength <- list.files('~/masked_path/3.bigWigs_rawcounts_splitted_by_lengths', pattern='*Forward', full.names=T) %>% BigWigFileList()
+  sRNA_minus_counts_flower_byLength <- list.files('~/masked_path/3.bigWigs_rawcounts_splitted_by_lengths', pattern='*Reverse', full.names=T) %>% BigWigFileList()
+  sRNA_names_counts_flower_byLength <- list.files('~/masked_path/3.bigWigs_rawcounts_splitted_by_lengths', pattern='*Forward') %>%
                                      str_remove('.raw.Forward.bw') %>% str_replace('\\.', '_')
   names(sRNA_plus_counts_flower_byLength) <- names(sRNA_minus_counts_flower_byLength) <- sRNA_names_counts_flower_byLength
   
 # small RNA-seq stats
   # leaf (rosette)
-  stats_leaf <- readxl::read_xlsx('~/Dropbox/Maria_smallRNA_re-analysis_Dec2019/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
+  stats_leaf <- readxl::read_xlsx('~/masked_path/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
                 as_tibble() %>%
                 select(-Raw_read_length)
   # flower
-  stats_flower <- readxl::read_xlsx('~/Dropbox/Peter_exosome_re-analysis/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
+  stats_flower <- readxl::read_xlsx('~/masked_path/Sample_info.xlsx', col_names=T, trim_ws=T) %>%
                   as_tibble() %>%
                   select(-Raw_read_length)
 
 # get genes hosting a PROMPT CAGE TC
     # get PROMPT TC GR (N=96)
-    PROMPT_TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds') %>%
+    PROMPT_TCs <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds') %>%
                   rowRanges() %>%
                   subset(genotypehen2==1 | genotyperrp4==1) %>%
                   subset(txType_TAIR10=='reverse')
@@ -104,14 +104,6 @@ normFact_flower <- with(stats_flower, data.frame('Sample'=str_remove(Sample, '-5
 
 # 3. MAKE THEORETICAL PROMPT REGIONS HAVING A PROMPT CAGE TC: -500 bp from annotated TSSs ###
 # -------------------------------------------------------------------------------------------
-
-#                              TSS
-#         PROMPT TC           |
-#             |                => => => => => => => GENE BODY => => => => => =>
-#     -> -> -> -> -> -> -> ->
-#    |     PROMPT region (same orientation as gene)
-#    1bp position
-
 # 3a) get PROMPT regions (-500 bp from TSS) (N=33542)
 theo_prompts <- suppressWarnings( genes(txdb) %>%
                                   promoters(upstream=500, downstream=0) %>%
@@ -148,7 +140,6 @@ theo_prompts_with_PROMPT_TC <- subset(theo_prompts, gene_id %in% PROMPT_TC_genes
 
 # 3d) make 1-bp version
 theo_prompts_with_PROMPT_TC_1bp <- resize(theo_prompts_with_PROMPT_TC, width=1, fix='start')
-
 
 
 
@@ -235,7 +226,6 @@ export.bed(mRNAs, 'mRNA_500bp_regions.bed')
 
 # 5e. make 1-bp version
 mRNAs_1bp <- resize(mRNAs, width=1, fix='start')
-
 
 
 
@@ -568,7 +558,7 @@ profile_Gene_TSSs_1bp_with_PROMPT_TC %>%
 
 #            PROMPT TC       mRNA TSS
 #         < - - - - - |      | - - - - >
-#                    |      |=> => => => => => => =>
+#                     |      |=> => => => => => => =>
 #    [  500 bp max ]      [ 500 bp ]
 #      
 #      sum(smRNAseq)/sum(CAGE)      sum(smRNAseq)/sum(CAGE)
@@ -644,16 +634,7 @@ rrp4_smRNA_expNorm <- with(prompt_500bp_all_signal,
                                       'rrp4_23_PROMPT_smRNA_normExp'=(rrp4_23 + pseudocount)/(cage_rrp4 + pseudocount),
                                       'rrp4_24_PROMPT_smRNA_normExp'=(rrp4_24 + pseudocount)/(cage_rrp4 + pseudocount)))
 
-# rrp4_smRNA_expNorm %>%
-#   melt(id.vars='TC_id') %>%
-#   mutate('variable'=str_remove(variable, '_PROMPT_smRNA_normExp')) %>%
-#   ggplot(aes(x=value, col=variable)) + 
-#          geom_density() + scale_x_log10() +
-#          cowplot::theme_cowplot() + theme(legend.position=c(.5, .75)) +
-#          scale_color_brewer(palette='Set1', name='smRNA length') +
-#          labs(x='small RNA normalized read count\nnormalized to PROMPT CAGE TPM expression\n(log scale)',
-#               caption='pseudocount = +1\nCAGE TPM from rrp4 t=0')
-
+                                                                         
 
 # PART 2: GENE SIDE
 # -----------------
@@ -775,6 +756,3 @@ final %>%
          labs(x='PROMPT small RNAs normalized to PROMPT expression (log)',
               y='GENE small RNAs normalized to GENE expression (log)',
               title='Data for RRP4')
-
-
-
