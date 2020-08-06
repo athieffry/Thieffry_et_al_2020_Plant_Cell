@@ -1,5 +1,6 @@
 #### comparison with PEAT from Morton & al
 #### Same analysis as NanoPARE from Schon & al
+#### Axel Thieffry
 library(tidyverse)
 library(magrittr)
 library(reshape2)
@@ -21,17 +22,17 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      else {o <- GR}
                                      o}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6a. comparison PEAT Morton')
+setwd('~/masked_path/6a. comparison PEAT Morton')
 
 
 
 # 1. READ DATA ####
 # -----------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 
 # NanoPARE TSSs from Schon et al. (5ng)
-nanopare <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6a. comparison PEAT Morton/NanoPARE data/supplemental_code_S1/data_tables/fb.W.5P.bed') %>% as_tibble()
+nanopare <- read.table('~/masked_path/fb.W.5P.bed') %>% as_tibble()
     # clean
     colnames(nanopare) <- c('chr', 'start', 'end', 'type', 'peak', 'strand', 'geneID', 'bla', 'blu', 'blo')
     nanopare$chr %<>% str_remove('Ath_') %>% str_replace('chr', 'Chr') %>% str_replace('Chrc', 'ChrC') %>% str_replace('Chrm', 'ChrM')
@@ -57,7 +58,7 @@ nanopare <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/0
     nanopare_gr
 
 # PEAT from Morton & al.: as provided by Schon et al.
-peat <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6a. comparison PEAT Morton/NanoPARE data/supplemental_code_S1/data_tables/PEAT_peaks.bed') %>% as_tibble()
+peat <- read.table('~/masked_path/PEAT_peaks.bed') %>% as_tibble()
     # clean
     colnames(peat) <- c('chr', 'start', 'end', 'geneID', 'score', 'strand', 'peak')
     peat$chr %<>% str_remove('Ath_') %>% str_replace('chr', 'Chr')
@@ -76,7 +77,7 @@ peat <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - 
                                         start.field='start', end.field='end')
 
 # CAGE wildtype TSSs (t=0)
-TCs_ctrl <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_ctrl.rds') # 21,221
+TCs_ctrl <- readRDS('~/masked_path/SE_TCs_ctrl.rds') # 21,221
     # look at CAGE TSS width distribution
     gg_width_cage <- rowRanges(TCs_ctrl) %>%
                      as.data.frame() %>%
@@ -122,7 +123,7 @@ dev.off()
     seqlevelsStyle(txdb) <- seqlevelsStyle(myseqinfo)
     
     # ARAPORT11 models
-    araport <- import.gff3('~/Dropbox/Axel_Arabidopsis_Flagellin/ARAPORT11/ARAPORT11_annotation_062016/Araport11_GFF3_genes_transposons.201606.gff')
+    araport <- import.gff3('~/masked_path/Araport11_GFF3_genes_transposons.201606.gff')
     # clean mcols
     mcols(araport) %<>% as.data.frame() %>% select(type, ID, Name, locus_type)
     seqlevels(araport) <- seqlevels(myseqinfo)
@@ -221,4 +222,3 @@ ggplot() + stat_ecdf(data=tair_dist, geom='line', aes(x=distance), col=brewer.pa
            theme_bw() + theme(aspect.ratio=1, panel.border=element_rect(fill=NA, size=1), axis.line=element_blank()) +
            scale_x_continuous(expand=c(0,0)) + scale_y_continuous(expand=c(0,0)) +
            labs(x='Distance to PEAT peak (bp)', y='Cumulative frequency', title='TSS positional error')
-
