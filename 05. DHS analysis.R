@@ -1,4 +1,5 @@
 #### DHS analysis
+#### Axel Thieffry
 library(tidyverse)
 library(magrittr)
 library(reshape2)
@@ -26,35 +27,35 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      if(length(idx) != 0) { o <- GR[-idx]}
                                      else {o <- GR}
                                      o}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/05 - DHS analysis')
+
+setwd('~/masked_path/05 - DHS analysis')
 
 
 
 # 1. INPUT DATA ####
 # ------------------
 # seqinfo
-myseqinfo <- read_rds('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/myseqinfo.rds')
+myseqinfo <- read_rds('~/masked_path/myseqinfo.rds')
 
 # RNA-Seq BIGWIG FILES
-rnaseq_forward <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Forward_R123_fixed', full.names=T)
-rnaseq_reverse <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Reverse_R123_fixed', full.names=T)
+rnaseq_forward <- list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Forward_R123_fixed', full.names=T)
+rnaseq_reverse <- list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Reverse_R123_fixed', full.names=T)
 rnaseq_forward %<>% BigWigFileList()
 rnaseq_reverse %<>% BigWigFileList()
-rnaseq_names <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Forward_R123_fixed', full.names=F) %>% str_remove('_Forward_R123_fixed.bw')
+rnaseq_names <- list.files(path='~/masked_path/bigwigs_RPM_R123_fixed', pattern='Forward_R123_fixed', full.names=F) %>% str_remove('_Forward_R123_fixed.bw')
 names(rnaseq_forward) <- names(rnaseq_reverse) <- rnaseq_names
 
 # CAGE BIGWIG FILES
-cage_p <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*plus'))
-cage_m <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*minus'))
-cage_names <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
+cage_p <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*plus'))
+cage_m <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*minus'))
+cage_names <- list.files('~/masked_path/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
 names(cage_p) <- names(cage_m) <- cage_names
 
 # DHS sites
-#dhss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/analysis/new_dhssumits_annotated_plantDHSonly.rds')
-dhss <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/analysis/new_dhssumits_annotated_plantDHSonly_Summits_with_flower.rds')
+dhss <- readRDS('~/masked_path/new_dhssumits_annotated_plantDHSonly_Summits_with_flower.rds')
 
 # CAGE WT TSSs
-CTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_CTSSs_1count_min3lib_TSSstory.rds')
+CTSSs <- readRDS('~/masked_path/SE_CTSSs_1count_min3lib_TSSstory.rds')
 wt_CTSSs <- subset(CTSSs, select=genotype=='wt')
 wt_CTSSs <- subsetBySupport(wt_CTSSs, inputAssay='counts', unexpressed=0, minSamples=2)
     # percentage of CAGE signal captured by DHSs
@@ -68,22 +69,22 @@ wt_CTSSs <- subsetBySupport(wt_CTSSs, inputAssay='counts', unexpressed=0, minSam
     wt_CTSSs_in_DHS / total_WT_CTSSs * 100
 
 # Histone marks (H3K27me3a is from PlantDHS.org - H3K27me3b is from V. Colot 2011 paper)
-histones <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis', pattern='H3', full.names=T) %>% BigWigFileList()
-names(histones) <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis', pattern='H3') %>%
+histones <- list.files('~/masked_path/03 - TSS analysis', pattern='H3', full.names=T) %>% BigWigFileList()
+names(histones) <- list.files('~/masked_path/03 - TSS analysis', pattern='H3') %>%
               str_remove('plantDHS_leaf_') %>% str_remove('_TPM99pc.bw') %>% str_remove('GSE50636_At_') %>%
               str_remove('GSE74841_coverageNormSize_') %>% str_remove('_coVcomp.sorted.bw') %>% str_remove('_Col_wt_R1.bw')
 # DNaseI
-dnase <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES/02.DHSs/plantdhs.org/DNase', pattern='flower', full.names=T) %>% BigWigFileList()
+dnase <- list.files('~/masked_path/DNase', pattern='flower', full.names=T) %>% BigWigFileList()
 names(dnase) <- 'DNaseI'
 
 # GROcap Hetzel
-grocap_p <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses', pattern='GROcap.*plus', full.names=T) %>% BigWigFileList()
-grocap_m <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses', pattern='GROcap.*minus', full.names=T) %>% BigWigFileList()
+grocap_p <- list.files('~/masked_path/02 - Enhancers analyses', pattern='GROcap.*plus', full.names=T) %>% BigWigFileList()
+grocap_m <- list.files('~/masked_path/02 - Enhancers analyses', pattern='GROcap.*minus', full.names=T) %>% BigWigFileList()
 names(grocap_p) <- names(grocap_m) <- "5GRO-cap"
 
 # GROseq Hetzel
-grohet_p <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses', pattern='GROseq_hetzel.*plus', full.names=T) %>% BigWigFileList()
-grohet_m <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/02 - Enhancers analyses', pattern='GROseq_hetzel.*minus', full.names=T) %>% BigWigFileList()
+grohet_p <- list.files('~/masked_path/02 - Enhancers analyses', pattern='GROseq_hetzel.*plus', full.names=T) %>% BigWigFileList()
+grohet_m <- list.files('~/masked_path/02 - Enhancers analyses', pattern='GROseq_hetzel.*minus', full.names=T) %>% BigWigFileList()
 names(grohet_p) <- names(grohet_m) <- 'GROseq_Hetzel'
 
 
@@ -126,6 +127,7 @@ cage_profile_promoter_dhss %>%
 # -------------------------------------
 # 3a. get intergenic DHSs only
 dhss_intergenic <- subset(dhss, txType=='intergenic') # 9130
+
 # 3b. compute average coverage for all histone marks + DNaseI + CAGE
 hist_intergenic_DHS <- tidyMetaProfile(sites=dhss_intergenic, forward=histones, reverse=NULL, upstream=1000, downstream=1000, trimLower=0.01, trimUpper=0.99)
 dnase_intergenic_DHS <- tidyMetaProfile(sites=dhss_intergenic, forward=dnase, reverse=NULL, upstream=1000, downstream=1000, trimLower=0.01, trimUpper=0.99)
@@ -146,6 +148,7 @@ gg_hist_intergenic_DHS <- rbind(hist_intergenic_DHS, dnase_intergenic_DHS) %>%
          labs(title='Histones marks', x='Distance form DHS summits (bp)', y='Average normalized signal') +
          scale_color_brewer(palette='Dark2', name='')
 gg_hist_intergenic_DHS + xlim(-800, 800)
+
 # 3d. look if there's a TSS bias in one direction, which would explain the systematic histone mark shift to the right
 gg_cage_intergenic_DHS <- cage_intergenic_DHS %>%
   gather(key="direction", value="score", sense, anti, factor_key=T) %>%
@@ -295,11 +298,11 @@ ggarrange(gg_proximal, gg_5UTR, gg_CDS, gg_exon, gg_intron, gg_3UTR, align='hv',
 # fix seqinfo and re-output new BigWigs as 'fixed'
 if(FALSE){
   # fix the fucking seqinfo
-  rnaseq_forward <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123', pattern='Forward', full.names=T)
-  rnaseq_reverse <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123', pattern='Reverse', full.names=T)
+  rnaseq_forward <- list.files('~/masked_path/bigwigs_RPM_R123', pattern='Forward', full.names=T)
+  rnaseq_reverse <- list.files('~/masked_path/bigwigs_RPM_R123', pattern='Reverse', full.names=T)
   rnaseq_forward %<>% lapply(import.bw)
   rnaseq_reverse %<>% lapply(import.bw)
-  rnaseq_names <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
+  rnaseq_names <- list.files(path='~/masked_path/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
   names(rnaseq_forward) <- rnaseq_names
   names(rnaseq_reverse) <- rnaseq_names
   
@@ -313,7 +316,7 @@ if(FALSE){
   rnaseq_forward <- lapply(rnaseq_forward, trim)
   rnaseq_reverse <- lapply(rnaseq_reverse, trim)
   
-  setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed')
+  setwd('~/masked_path/bigwigs_RPM_R123_fixed')
   mapply(function(x, y) export.bw(x, y), rnaseq_forward, paste0(names(rnaseq_forward), '_Forward_R123_fixed.bw'))
   mapply(function(x, y) export.bw(x, y), rnaseq_reverse, paste0(names(rnaseq_forward), '_Reverse_R123_fixed.bw'))}
 
@@ -370,7 +373,7 @@ rnaseq_profile_promoter_dhss %>%
     mutate('signal'=factor(signal, levels=c('wt', 'lsm8-2', 'rrp4', 'rrp4 lsm8-2'))) %>%
     mutate('tech'='RNA-seq')
   
-  # plot both
+# plot both
   all_levels <- factor(c('wt', 'hen2', 'lsm8-2', 'rrp4', 'rrp4 lsm8-2'), levels=c('wt', 'hen2', 'lsm8-2', 'rrp4', 'rrp4 lsm8-2'))
   
   cage_df %>%
