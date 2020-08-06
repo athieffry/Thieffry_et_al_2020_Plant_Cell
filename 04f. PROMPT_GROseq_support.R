@@ -1,5 +1,5 @@
 #### Arabidopsis TSS story: GRO-seq support of PROMPTs
-#### Axel Thieffry - August 2019
+#### Axel Thieffry
 set.seed(42)
 library(ggridges)
 library(pheatmap)
@@ -27,24 +27,24 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      if(length(idx) != 0) { GR[-idx]}
                                      else {GR}}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE')
+setwd('~/masked_path/04 - TSS_Level DE')
 
 
 
 # 1. GET DATA ####
 # ----------------
 # CAGE TCs
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
 # TxDB
 txdb <- TxDb.Athaliana.BioMart.plantsmart28
 # GROseq: 5'GRO-cap (Hetzel), GRO-seq (Hetzel), GRO-seq (Jacobsen)
-gro_p <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis', pattern='GRO.*plus.bw', full.names=T) %>% BigWigFileList()
-gro_m <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis', pattern='GRO.*minus.bw', full.names=T) %>% BigWigFileList()
+gro_p <- list.files('~/masked_path/03 - TSS analysis', pattern='GRO.*plus.bw', full.names=T) %>% BigWigFileList()
+gro_m <- list.files('~/masked_path/03 - TSS analysis', pattern='GRO.*minus.bw', full.names=T) %>% BigWigFileList()
 names(gro_p) <- names(gro_m) <- c('GROcap_Hetzel', 'GROseq_Hetzel', 'GROseq_Jacobsen')
 # CAGE signal
-cage_p <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*plus'))
-cage_m <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*minus'))
-cage_names <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
+cage_p <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*plus'))
+cage_m <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*minus'))
+cage_names <- list.files('~/masked_path/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
 names(cage_p) <- names(cage_m) <- cage_names
 # make seqinfo from the CAGE signal
 myseqinfo <- seqinfo(cage_p$wt)
@@ -67,8 +67,8 @@ athal_prompts <- promoters(genes, upstream=400, downstream=0, use.names=T) %>% r
 athal_prompts %<>% invertStrand()
 
 # 2d. sanity-check IGV (all OK)
-if(FALSE) {export.bed(genes, '~/Desktop/genes.bed')
-           export.bed(athal_prompts, '~/Desktop/Athal_PROMPTs.bed')}
+if(FALSE) {export.bed(genes, '~/masked_path/genes.bed')
+           export.bed(athal_prompts, '~/masked_path/Athal_PROMPTs.bed')}
 
 # 2e. indicate if PROMPT overlap a gene (strand-independent)
 df_prompts_gene_countOverlap <- countOverlaps(athal_prompts, genes, ignore.strand=T) %>%
