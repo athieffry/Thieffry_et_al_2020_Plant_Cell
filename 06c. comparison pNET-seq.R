@@ -1,5 +1,5 @@
 #### Arabidopsis flg22 : pNET-seq pausing at 3'UTRs (with and without aTSSs)
-#### Axel Thieffry - April 2019
+#### Axel Thieffry
 set.seed(42)
 library(WriteXLS)
 library(patchwork)
@@ -27,24 +27,24 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      if(length(idx) != 0) { GR[-idx]}
                                      else {GR}}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6c. pNET-seq')
+setwd('~/masked_path/6c. pNET-seq')
 
 
 
 # 1. LOAD ALL INPUT FILES ####
 # ----------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 # 3'UTR aTSSs
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib.rds')
 aTSSs <- rowRanges(TCs) %>% subset(txType_TAIR10extended == 'antisense_threeUTR')
 # 3'UTRs
-threeUTRs_with_aTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_with_aTSS_gr.rds')
-threeUTRs_wout_aTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_without_aTSS_gr.rds')
+threeUTRs_with_aTSSs <- readRDS('~/masked_path/threeUTRstory_3utrs_with_aTSS_gr.rds')
+threeUTRs_wout_aTSSs <- readRDS('~/masked_path/threeUTRstory_3utrs_without_aTSS_gr.rds')
 # pNET signal as BigWigFileList
-pNET_plus <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6c. pNET-seq/averaged_bigwigs_tpm', pattern='_plus_tpm.bw', full.names=T) %>% BigWigFileList()
-pNET_minus <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6c. pNET-seq/averaged_bigwigs_tpm', pattern='_minus_tpm.bw', full.names=T) %>% BigWigFileList()
-filenames <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6c. pNET-seq/averaged_bigwigs_tpm', pattern='_plus_tpm.bw', full.names=F) %>% str_remove('_r12_plus_tpm.bw') %>% str_remove('_plus_tpm.bw')
+pNET_plus <- list.files('~/masked_path/averaged_bigwigs_tpm', pattern='_plus_tpm.bw', full.names=T) %>% BigWigFileList()
+pNET_minus <- list.files('~/masked_path/averaged_bigwigs_tpm', pattern='_minus_tpm.bw', full.names=T) %>% BigWigFileList()
+filenames <- list.files('~/masked_path/averaged_bigwigs_tpm', pattern='_plus_tpm.bw', full.names=F) %>% str_remove('_r12_plus_tpm.bw') %>% str_remove('_plus_tpm.bw')
 names(pNET_plus) <- filenames
 names(pNET_minus) <- filenames
 
