@@ -1,5 +1,5 @@
 #### Arabidopsis flg22 : DE TSSs by annotation, normalized by annotation length
-#### Axel Thieffry - Mars 2019
+#### Axel Thieffry
 set.seed(42)
 library(WriteXLS)
 library(ggrepel)
@@ -40,21 +40,21 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      if(length(idx) != 0) { GR[-idx]}
                                      else {GR}}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE')
+setwd('~/masked_path/04 - TSS_Level DE')
 
 
 # 1. LOAD ALL INPUT FILES ####
 # ----------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 # colors
 exo_colors2 <- brewer.pal(name='Set3', n=4)[3:4]
 # DE TSSs: annotation DF
-sense_annot <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/dtByAnot.rds')
-anti_annot <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/dtByAnot_antisense.rds') %>% ungroup()
+sense_annot <- readRDS('~/masked_path/dtByAnot.rds')
+anti_annot <- readRDS('~/masked_path/dtByAnot_antisense.rds') %>% ungroup()
 # annotation hierarchies
-sense_hierarchy <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_TAIR10.rds')
-anti_hierarchy  <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/custom_annotation_hierarchy_TAIR10_extended_antisense.rds')
+sense_hierarchy <- readRDS('~/masked_path/custom_annotation_hierarchy_TAIR10.rds')
+anti_hierarchy  <- readRDS('~/masked_path/custom_annotation_hierarchy_TAIR10_extended_antisense.rds')
 
 
 
