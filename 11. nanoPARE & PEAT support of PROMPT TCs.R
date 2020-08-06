@@ -1,5 +1,5 @@
-#### REFEREE DEMAND: HOW MANY PEAT/NANOPARE TSSs AROUND OUR 96 CAGE PROMPT TCs?
-#### Axel Thieffry - December 2019
+#### HOW MANY PEAT/NANOPARE TSSs AROUND OUR 96 CAGE PROMPT TCs?
+#### Axel Thieffry
 set.seed(42)
 library(tidyverse)
 library(tidylog)
@@ -29,25 +29,25 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      if(length(idx) != 0) { o <- GR[-idx]}
                                      else {o <- GR}
                                      o}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/11 - PEAT & nanoPARE support of PROMPT TCs')
+setwd('~/masked_path/11 - PEAT & nanoPARE support of PROMPT TCs')
 
 
 # 1. GET INPUT DATA ####
 # ----------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 
 # CAGE TCs (work with that one because it has IRanges as peaks)
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_TPM1_min3lib_TSSstory.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_TPM1_min3lib_TSSstory.rds')
 
 # CAGE TCs ids (get those one first to select TC_ids that are PROMPT: )
-PROMPT_ids <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds') %>%
+PROMPT_ids <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds') %>%
               rowRanges() %>%
               subset(txType_TAIR10=='reverse' & (genotypehen2==1 | genotyperrp4==1)) %>%
               names()
 
 # nanoPARE TSSs
-nanopare <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6a. comparison PEAT Morton/NanoPARE data/supplemental_code_S1/data_tables/fb.W.5P.bed') %>% as_tibble()
+nanopare <- read.table('~/masked_path/fb.W.5P.bed') %>% as_tibble()
     # clean
     colnames(nanopare) <- c('chr', 'start', 'end', 'type', 'peak', 'strand', 'geneID', 'bla', 'blu', 'blo')
     nanopare$chr %<>% str_remove('Ath_') %>% str_replace('chr', 'Chr') %>% str_replace('Chrc', 'ChrC') %>% str_replace('Chrm', 'ChrM')
@@ -83,7 +83,7 @@ nanopare <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/0
             }
 
 # PEAT TSSs
-peat <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6a. comparison PEAT Morton/NanoPARE data/supplemental_code_S1/data_tables/PEAT_peaks.bed') %>% as_tibble()
+peat <- read.table('~/masked_path/PEAT_peaks.bed') %>% as_tibble()
       # clean
       colnames(peat) <- c('chr', 'start', 'end', 'geneID', 'score', 'strand', 'peak')
       peat$chr %<>% str_remove('Ath_') %>% str_replace('chr', 'Chr')
@@ -153,6 +153,5 @@ support %>%
          labs(x='Distance from PROMPT CAGE TC peaks (N=96) (bp)',
               y='Number of TSSs (same strandedness)',
               title='Support of PROMPT CAGE TCs\nby PEAT & nanoPARE TSSs')
-
 21/96*100
 1/96*100
