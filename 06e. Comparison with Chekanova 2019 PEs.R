@@ -1,5 +1,5 @@
 #### Arabidopsis TSS story: comparison with Chekanova 2019 potential enhancers
-#### Axel Thieffry - September 2019
+#### Axel Thieffry
 set.seed(42)
 library(patchwork)
 library(RColorBrewer)
@@ -25,18 +25,18 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      if(length(idx) != 0) { GR[-idx]}
                                      else {GR}}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6e. Chekanova 2019')
+setwd('~/masked_path/6e. Chekanova 2019')
 
 
 
 # 1. READ DATA ####
 # -----------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 # Chekanova PEs
-pes <- readxl::read_xlsx('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6e. Chekanova 2019/Supplemental_Tables_S1_to_S14.xlsx', sheet='PEs', col_names=T, trim_ws=T)
+pes <- readxl::read_xlsx('~/masked_path/Supplemental_Tables_S1_to_S14.xlsx', sheet='PEs', col_names=T, trim_ws=T)
 # Chekanova rrp41 sensitive PEs
-tmp <- readxl::read_xlsx('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6e. Chekanova 2019/Supplemental_Tables_S1_to_S14.xlsx', sheet='exosensitive_PEs', col_names=T, trim_ws=T) %>% select(PEid, PE_group)
+tmp <- readxl::read_xlsx('~/masked_path/Supplemental_Tables_S1_to_S14.xlsx', sheet='exosensitive_PEs', col_names=T, trim_ws=T) %>% select(PEid, PE_group)
 pes %<>% left_join(tmp, by='PEid')
 pes %<>% mutate('PE_group'=ifelse(is.na(PE_group), 'Group 0', PE_group)) %>%
                   mutate('rrp41_sensitive'=ifelse(PE_group=='Group 0', FALSE, TRUE))
@@ -49,27 +49,27 @@ pes %<>% mutate('PE_group'=ifelse(is.na(PE_group), 'Group 0', PE_group)) %>%
       table(pes$rrp41_sensitive)
       rm(tmp)
 # TCs
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
 # 3'UTRs
-threeUTRs_with_aTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_with_aTSS_gr.rds')
-threeUTRs_wout_aTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_without_aTSS_gr.rds')
+threeUTRs_with_aTSSs <- readRDS('~/masked_path/threeUTRstory_3utrs_with_aTSS_gr.rds')
+threeUTRs_wout_aTSSs <- readRDS('~/masked_path/threeUTRstory_3utrs_without_aTSS_gr.rds')
 # CAGE data
-    cage_p <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*plus'))
-    cage_m <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', full.names=T, pattern='_0.*minus'))
-    cage_names <- list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/CAGE/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
+    cage_p <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*plus'))
+    cage_m <- BigWigFileList(list.files('~/masked_path/bw_files_R123', full.names=T, pattern='_0.*minus'))
+    cage_names <- list.files('~/masked_path/bw_files_R123', pattern='_0.*plus') %>% str_remove('_0_R123.plus.tpm.bw')
     names(cage_p) <- names(cage_m) <- cage_names
 # RNA-Seq BIGWIG FILES
-    rnaseq_forward <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Forward', full.names=T))
-    rnaseq_reverse <- BigWigFileList(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123_fixed', pattern='Reverse', full.names=T))
-    rnaseq_names <- list.files(path='~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/rrp4_lsm8_novogene/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
+    rnaseq_forward <- BigWigFileList(list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Forward', full.names=T))
+    rnaseq_reverse <- BigWigFileList(list.files('~/masked_path/bigwigs_RPM_R123_fixed', pattern='Reverse', full.names=T))
+    rnaseq_names <- list.files(path='~/masked_path/bigwigs_RPM_R123', pattern='Forward.RPM.bw', full.names=F) %>% str_remove('_R123.Forward.RPM.bw')
     names(rnaseq_forward) <- names(rnaseq_reverse) <- rnaseq_names
 # ALL GROSEQ
-    gro_p <- BigWigFileList(c('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.plus.bw',
-                              '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/5GROcap.aln.unique.plus.bw',
-                              '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/GROseq_mergedAveraged_R12.plus.bw'))
-    gro_m <- BigWigFileList(c('~/Dropbox/Axel_Arabidopsis_Flagellin/GRO-seq Nature Plants 2018/GROseq_bigwigs/GROseq_col_mergedAveraged_R123456.minus.bw',
-                              '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/5GROcap.aln.unique.minus.bw',
-                              '~/Dropbox/Axel_Arabidopsis_Flagellin/Duttke/05.STAR_BigWigs/fixed_bws/GROseq_mergedAveraged_R12.minus.bw'))
+    gro_p <- BigWigFileList(c('~/masked_path/GROseq_col_mergedAveraged_R123456.plus.bw',
+                              '~/masked_path/5GROcap.aln.unique.plus.bw',
+                              '~/masked_path/GROseq_mergedAveraged_R12.plus.bw'))
+    gro_m <- BigWigFileList(c('~/masked_path/GROseq_col_mergedAveraged_R123456.minus.bw',
+                              '~/masked_path/5GROcap.aln.unique.minus.bw',
+                              '~/masked_path/GROseq_mergedAveraged_R12.minus.bw'))
     names(gro_p) <- names(gro_m) <- c('GROseq_Hetzel', 'GROcap_Duttke', 'GROseq_Duttke')
 
 
@@ -190,17 +190,17 @@ subsetByOverlaps(rowRanges(BCs), pes, ignore.strand=T) # 5/113 => 4%
 # 4. FOOTPRINT OF HISTONE MODIFICATIONS ####
 # ------------------------------------------
 # ChIP-Seq
-chipseq <- c(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K4me1', full.names=T),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K4me2', full.names=T),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K4me3', full.names=T),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K27me3', full.names=T),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K27ac', full.names=T)) %>% BigWigFileList()
+chipseq <- c(list.files('~/masked_path/bigwigs', pattern='H3K4me1', full.names=T),
+  list.files('~/masked_path/bigwigs', pattern='H3K4me2', full.names=T),
+  list.files('~/masked_path/bigwigs', pattern='H3K4me3', full.names=T),
+  list.files('~/masked_path/bigwigs', pattern='H3K27me3', full.names=T),
+  list.files('~/masked_path/bigwigs', pattern='H3K27ac', full.names=T)) %>% BigWigFileList()
 
-names(chipseq) <- c(list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K4me1'),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K4me2'),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K4me3'),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K27me3'),
-list.files('~/Dropbox/Axel_Arabidopsis_Flagellin/ChIP-seq/bigwigs', pattern='H3K27ac')) %>% str_remove('\\.bw')
+names(chipseq) <- c(list.files('~/masked_path/bigwigs', pattern='H3K4me1'),
+  list.files('~/masked_path/bigwigs', pattern='H3K4me2'),
+  list.files('~/masked_path/bigwigs', pattern='H3K4me3'),
+  list.files('~/masked_path/bigwigs', pattern='H3K27me3'),
+  list.files('~/masked_path/bigwigs', pattern='H3K27ac')) %>% str_remove('\\.bw')
 
 
 # Footprint and plot
@@ -226,8 +226,8 @@ chipseq_at_pes %>%
 
 # 5. FOOTPRINT OF  MNaseI & DNaseI from PlantDHS.org ####
 # -------------------------------------------------------
-dmnase <- BigWigFileList(c('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_mnase_leaf_TPM99pc.bw',
-                           '~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/03 - TSS analysis/plantDHS_dnase_leaf_TPM99pc.bw'))
+dmnase <- BigWigFileList(c('~/masked_path/plantDHS_mnase_leaf_TPM99pc.bw',
+                           '~/masked_path/plantDHS_dnase_leaf_TPM99pc.bw'))
 names(dmnase) <- c('MNase_leaf', 'DNase_leaf')
 
 # Footprint and plot
@@ -239,4 +239,3 @@ ggplot(dmnase_at_pes, aes(x=pos0, y=sense, col=signal)) +
        cowplot::theme_cowplot() + theme(aspect.ratio=1) +
        labs(title='MNase & DNaseI Footprints', x='Position relative PE midpoints (bp)',
             y='Average signal (trimmed 1% ma 15 bp)', caption='leaf samples')
-
