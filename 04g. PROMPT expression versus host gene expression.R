@@ -1,5 +1,5 @@
 #### Arabidopsis: PROMPT expression versus host gene expression
-#### Axel Thieffry - December 2019
+#### Axel Thieffry
 set.seed(42)
 library(patchwork)
 library(RColorBrewer)
@@ -18,15 +18,15 @@ library(tidylog)
 '%!in%' <- function(x,y)!('%in%'(x,y))
 'select' <- dplyr::select
 'rename' <- dplyr::rename
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE')
+setwd('~/masked_path/04 - TSS_Level DE')
 
 
 
 # 1. LOAD ALL INPUT FILES ####
 # ----------------------------
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
-geneLevel <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_genelevel_TSSstory.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
+geneLevel <- readRDS('~/masked_path/SE_genelevel_TSSstory.rds')
 
 # 2. GET PROMPTs only ####
 # ------------------------
