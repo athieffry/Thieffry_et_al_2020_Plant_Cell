@@ -1,5 +1,5 @@
 #### Arabidopsis TSS story: comparison with Liu 2016 & gene loops
-#### Axel Thieffry - October 2019
+#### Axel Thieffry
 set.seed(42)
 library(patchwork)
 library(RColorBrewer)
@@ -23,21 +23,21 @@ remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_inde
                                      if(length(idx) != 0) { GR[-idx]}
                                      else {GR}}
 
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6f. Li 2016 - HiC')
+setwd('~/masked_path/6f. Li 2016 - HiC')
 
 
 
 # 1. READ DATA ####
 # -----------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 # Liu gene loops
-geneloops <- read.table('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/06 - Comparisons/6f. Li 2016 - HiC/Supplemental_Table_S5.txt', h=T, sep='\t') %>% as_tibble()
+geneloops <- read.table('~/masked_path/Supplemental_Table_S5.txt', h=T, sep='\t') %>% as_tibble()
 # TCs
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_with_all_data_for_PROMPT_GROseq_support.rds')
 # 3'UTRs
-threeUTRs_with_aTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_with_aTSS_gr.rds')
-threeUTRs_wout_aTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/threeUTRstory_3utrs_without_aTSS_gr.rds')
+threeUTRs_with_aTSSs <- readRDS('~/masked_path/threeUTRstory_3utrs_with_aTSS_gr.rds')
+threeUTRs_wout_aTSSs <- readRDS('~/masked_path/threeUTRstory_3utrs_without_aTSS_gr.rds')
 
 
 # 2. OVERLAPS ####
@@ -53,7 +53,3 @@ genes_with_3UTR_DE_aTSSs <- rowRanges(TCs) %>%
   unique()
 
 mean(genes_with_3UTR_aTSSs %in% geneloops_ids) * 100
-
-
-
-
