@@ -1,5 +1,5 @@
 #### Arabidopsis flg22 : Logos of DE TCs
-#### Axel Thieffry - February 2019
+#### Axel Thieffry
 set.seed(42)
 library(tidyverse)
 library(magrittr)
@@ -25,18 +25,18 @@ remove_out_of_bound <- function(GR) {idx=GenomicRanges:::get_out_of_bound_index(
                                      if(length(idx) != 0) { o <- GR[-idx]}
                                      else {o <- GR}
                                      o}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/04 - TSS_Level DE/')
+setwd('~/masked_path/04 - TSS_Level DE/')
 
 
 
 # 1. GET ALL INPUT DATA ####
 # --------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
       # remove non-canonical chromosomes
       seqlevels(myseqinfo) <- setdiff(seqlevels(myseqinfo), c('ChrM', 'ChrC'))
 # TCs from DE
-TCs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSIS_TSSstory/00 - RDATA/SE_TCs_for_seqlogos.rds')
+TCs <- readRDS('~/masked_path/SE_TCs_for_seqlogos.rds')
       # remove non-canonical chromosomes
       seqlevels(TCs, pruning.mode='coarse') <- setdiff(seqlevels(myseqinfo), c('ChrM', 'ChrC'))
 # read TAIR10 genome
