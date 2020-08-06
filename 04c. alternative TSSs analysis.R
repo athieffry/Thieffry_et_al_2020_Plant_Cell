@@ -1,5 +1,5 @@
 #### Arabidopsis flg22 : Alternative TSSs
-#### Axel Thieffry - August 2018
+#### Axel Thieffry
 set.seed(42)
 library(WriteXLS)
 library(ggpubr)
@@ -26,38 +26,34 @@ library(venn)
 remove_out_of_bound <- function(GR) {idx = GenomicRanges:::get_out_of_bound_index(GR)
                                     if(length(idx) != 0) { GR[-idx]}
                                     else {GR}}
-setwd('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/04 - TSS_Level DE/')
-
-# METHOD:
-# Keep all TSSs that are intragenic and contribute at least 10% of the gene expression
-# Alternative TSSs are defined as all TSSs that are not +/-100bp from annotated TSS
+setwd('~/masked_path/04 - TSS_Level DE/')
 
 
 # 1. LOAD ALL INPUT FILES ####
 # ----------------------------
 # myseqinfo
-myseqinfo <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/myseqinfo.rds')
+myseqinfo <- readRDS('~/masked_path/myseqinfo.rds')
 
 # INTRAGENIC TSSs for DTU ANALYSIS
 # Those are TSSs associated to a gene and contributing at least 10% to the total gene expression
-intraTSSs <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/SE_intragenicTSSs_for_DTU.rds')
+intraTSSs <- readRDS('~/masked_path/SE_intragenicTSSs_for_DTU.rds')
     # drop empty annotation levels
     rowRanges(intraTSSs)$txType_TAIR10 %<>% droplevels()
     # sanity check
     rowRanges(intraTSSs) %$% table(.$txType_TAIR10) %>% as.data.frame()
 
 # AGI ID mapping
-idmapping <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/AGI_ID_mapping.rds')
+idmapping <- readRDS('~/masked_path/AGI_ID_mapping.rds')
 
 # design and contrast
-design <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/limma_design_matrix.rds')
-contrasts <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/limma_contrast_matrix.rds')
+design <- readRDS('~/masked_pathA/limma_design_matrix.rds')
+contrasts <- readRDS('~/masked_path/limma_contrast_matrix.rds')
 
 # DE TSSs
-dt <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_TCs_summary.rds')
-tt_timepoint10 <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_TSSs_topTable_timepoint10.rds')
-tt_wt3010 <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_TSSs_topTable_wt3010.rds')
-tt_timepoint30 <- readRDS('~/Dropbox/Axel_Arabidopsis_Flagellin/ANALYSES_v2/00 - RDATA/DE_TSSs_topTable_timepoint30.rds')
+dt <- readRDS('~/masked_path/DE_TCs_summary.rds')
+tt_timepoint10 <- readRDS('~/masked_path/DE_TSSs_topTable_timepoint10.rds')
+tt_wt3010 <- readRDS('~/masked_path/DE_TSSs_topTable_wt3010.rds')
+tt_timepoint30 <- readRDS('~/masked_path/DE_TSSs_topTable_timepoint30.rds')
 
 
 
@@ -246,4 +242,3 @@ table(dtus$GeneID) %>%
   ggplot(aes(x=DTU_TSSs_per_gene, y=count)) + geom_bar(stat='identity') +
          theme(aspect.ratio=1) + 
          labs(title='DTU TSSs frequency per gene', x='DTU TSSs', y='N(genes)')
-
